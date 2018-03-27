@@ -8,7 +8,6 @@
 #include <errno.h>
 #include <getopt.h>
 
-#define BUFFER 100
 #define ERROR_INVALID_PARAMETERS 0
 #define ERROR_INVALID_INPUT_FILE 1
 #define ERROR_EMPTY_INPUT_FILE 2
@@ -17,26 +16,30 @@
 
 
 typedef struct receivedParameters {
-	char* input;
 	char* output;
-	int inputBufferByteCount;
-	int outputBufferByteCount;
+	char* resolution; //queda string hasta que piense una mejor forma de representar la resolucion (con una struct quizas??)
+	int width;
+	int height;
+	char* center; //queda string hasta que piense una mejor forma de representar un numero complejo (con una struct quizas??)
+	char* seed; //queda string hasta que piense una mejor forma de representar un numero complejo (con una struct quizas??)
 } parameters_t;
 
 static struct option long_options[] =
 {
+	{"resolution",required_argument,NULL,'r'},
+	{"center",required_argument,NULL,'c'},
+	{"width",required_argument,NULL,'w'},
+	{"height",required_argument,NULL,'H'},
+	{"seed",required_argument,NULL,'s'},
 	{"output",required_argument,NULL,'o'},
-	{"input",required_argument,NULL,'i'},
 	{"help",no_argument,NULL,'h'},
 	{"version",no_argument,NULL,'V'},
-	{"ibuf-bytes",required_argument,NULL,'I'},
-	{"obuf-bytes",required_argument,NULL,'O'},
     {NULL, 0, NULL, 0}
 };
 
 /* Declaracion de funciones */
 
-void showVersion();
+void showVersion(void);
 void showHelp();
 parameters_t getParameters(int argc, char **argv);
 
@@ -47,10 +50,12 @@ parameters_t getParameters(int argc, char **argv){
     int ch;
     parameters_t receivedParameters;
 
-    receivedParameters.input = NULL;
     receivedParameters.output = NULL;
-    receivedParameters.inputBufferByteCount = 1; //valores por defecto
-    receivedParameters.outputBufferByteCount = 1; //valores por defecto
+    receivedParameters.resolution = "640x480"; //valores por defecto
+    receivedParameters.center = "0+0i"; //valores por defecto
+    receivedParameters.width = 2; //valores por defecto
+    receivedParameters.height = 2; //valores por defecto
+    receivedParameters.seed = "-0.726895347709114071439+0.188887129043845954792i"; //valores por defecto
 
     // loop over all of the options
     while ((ch = getopt_long(argc, argv, "hVi:o:I:O:", long_options, NULL)) != -1) {
@@ -59,8 +64,11 @@ parameters_t getParameters(int argc, char **argv){
             case 'o':
                 receivedParameters.output = optarg;
                 break;
-            case 'i':
-                receivedParameters.input = optarg;
+            case 'c':
+                receivedParameters.center = optarg;
+                break;
+            case 'r':
+                receivedParameters.resolution = optarg;
                 break;
             case 'V':
                 showVersion();
@@ -70,14 +78,16 @@ parameters_t getParameters(int argc, char **argv){
                 showHelp();
                 exit(0);
                 break;
-            case 'I':
-                receivedParameters.inputBufferByteCount = atoi(optarg);
+            case 'H':
+				receivedParameters.height = atoi(optarg);
+            case 'w':
+                receivedParameters.width = atoi(optarg);
                 break;
-            case 'O':
-                receivedParameters.outputBufferByteCount = atoi(optarg);
+            case 's':
+                receivedParameters.seed = optarg;
                 break;
             case '?':
-                if (optopt == 'i' || optopt == 'o' || optopt == 'I' || optopt == 'O') {
+                if (optopt == 'o' || optopt == 'c' || optopt == 'H' || optopt == 'w' || optopt == 's') {
                     fprintf (stderr, "No arguments provided for option -%c .\n", optopt);
                 } else if (isprint (optopt)) {
                     fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -93,20 +103,6 @@ parameters_t getParameters(int argc, char **argv){
 
 }
 
-int main(int argc, char *argv[]){
-
-    FILE* input;
-    FILE* output;
-
-	int result;
-
-	parameters_t receivedParameters = getParameters(argc,argv);
-	
-	if ((((receivedParameters.input == NULL) && (receivedParameters.output == NULL))) && (argc > 1)) {
-        return 0;
-    }
-    return result;
-}
 
 void showHelp(){
 	printf("%s\n", "TP0 Organizacion de computadoras - HELP");
@@ -143,4 +139,16 @@ void showError(int errorCode){
     if(errorCode == ERROR_NO_TEXT_GIVEN){
         fprintf(stderr,"%s\n", "No text passed to verify");
     }
+}
+
+
+int main(int argc, char *argv[]){
+	int result = 0;
+	parameters_t receivedParameters = getParameters(argc,argv);
+	printf("RESOLUTION: %s\n", receivedParameters.resolution);
+	printf("SEED: %s\n", receivedParameters.seed);
+	printf("CENTER: %s\n",receivedParameters.center);
+	printf("WIDTH: %d\n", receivedParameters.width);
+	printf("HEIGHT: %d\n", receivedParameters.height);
+    return result;
 }
