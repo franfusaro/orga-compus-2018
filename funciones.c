@@ -106,8 +106,28 @@ int parseResolution(char* resolstr, resolution_t* resolution) {
 int checkForOutputPath(char* path, FILE* file){
     if (path == NULL) return -1; // Chequea que el path no sea nulo
 
+    if(checkForBadCharacters(path) == -1) return -1;
+
+    if(strcmp(getFileExtension(path), ".pgm") != 0) return -1;
+
     if (strcmp(path, "-") == 0) file = stdout; // Si el nombre del archivo es "-" se utilizara la salida estandar
     else if (!(file = fopen(path, "w"))) return -1;
 
+    return 0;
+}
+
+char* getFileExtension(char *path) {
+    char *ext = strrchr(path, '.');
+    return (ext && ext != path) ? ext : (path + strlen(path));
+}
+
+int checkForBadCharacters(char* path){
+    char bad_chars[] = "!@%^*~|";
+    int i;
+    for (i = 0; i < strlen(bad_chars); ++i) {
+        if (strchr(path, bad_chars[i]) != NULL) {
+            return -1;
+        }
+    }
     return 0;
 }

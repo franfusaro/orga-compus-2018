@@ -186,6 +186,16 @@ void test_archivo_salida(){
     printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "NULL\n");
     assertPropio(result == -1, "El archivo de salida es nulo");
     printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = checkForOutputPath("aa*",outputFile);
+    printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "aa*\n");
+    assertPropio(result == -1, "El archivo de salida tiene caracteres invalidos");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = checkForOutputPath("archivo.jpg",outputFile);
+    printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "archivo.jpg\n");
+    assertPropio(result == -1, "El archivo de salida tiene una extension invalida");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
 }
 
 void assertPropio(int condition, char* msg)
