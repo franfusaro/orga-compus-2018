@@ -1,3 +1,8 @@
+#define ERR_VACIO -1
+#define ERR_INVALID_CHARS -2
+#define ERR_INVALID_FORMAT -3
+#define ERR_NO_REAL_PART -4
+#define ERR_NO_IMG_PART -5
 
 typedef struct nro_imaginario
 {
