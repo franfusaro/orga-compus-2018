@@ -16,8 +16,6 @@
 ------------------------------*/	 
 char** str_split(char* a_str, const char a_delim)
 {
-    printf("heeeeeey");
-
     char** result    = 0;
     size_t count     = 0;
     char* tmp        = a_str;
@@ -25,8 +23,6 @@ char** str_split(char* a_str, const char a_delim)
     char delim[2];
     delim[0] = a_delim;
     delim[1] = 0;
-
-    printf("now got here");
 
     /* Count how many elements will be extracted. */
     while (*tmp)
@@ -39,16 +35,12 @@ char** str_split(char* a_str, const char a_delim)
         tmp++;
     }
 
-    printf("got here");
-
     /* Add space for trailing token. */
     count += last_comma < (a_str + strlen(a_str) - 1);
 
     /* Add space for terminating null string so caller
        knows where the list of returned strings ends. */
     count++;
-
-    printf("and now got here");
 
     result = malloc(sizeof(char*) * count);
 
@@ -67,7 +59,6 @@ char** str_split(char* a_str, const char a_delim)
         *(result + idx) = 0;
     }
 
-    printf("about to return");
     return result;
 }
 
@@ -109,5 +100,14 @@ int parseResolution(char* resolstr, resolution_t* resolution) {
 
     resolution->width = width;
     resolution->height = height;
+    return 0;
+}
+
+int checkForOutputPath(char* path, FILE* file){
+    if (path == NULL) return -1; // Chequea que el path no sea nulo
+
+    if (strcmp(path, "-") == 0) file = stdout; // Si el nombre del archivo es "-" se utilizara la salida estandar
+    else if (!(file = fopen(path, "w"))) return -1;
+
     return 0;
 }

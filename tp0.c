@@ -18,7 +18,7 @@
 #define ERROR_NO_TEXT_GIVEN 4
 
 typedef struct receivedParameters {
-	char* output;
+	FILE* output;
 	resolution_t resolution;
 	int width;
 	int height;
@@ -67,7 +67,7 @@ parameters_t getParameters(int argc, char **argv){
         // check to see if a single character or long option came through
         switch (ch){
             case 'o':
-                receivedParameters.output = optarg;
+                checkForOutputPath(optarg,receivedParameters.output);
                 break;
             case 'c':
                 parseNroImg(optarg,&receivedParameters.center);

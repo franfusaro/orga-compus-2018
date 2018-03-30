@@ -129,7 +129,9 @@ void test_chars_validos_nro_imaginario()
 void test_resolucion(){
 	printf(ANSI_COLOR_YELLOW "START TESTS: RESOLUCION.\n");
     resolution_t resol;
-    int result = parseResolution("800x600",&resol);
+    int result;
+
+    result= parseResolution("800x600",&resol);
 	printf(ANSI_COLOR_YELLOW "Parseando resolucion:" ANSI_COLOR_WHITE "800x600\n");
 	assertPropio(result == 0, "El parseo fue correcto");
     printf(ANSI_COLOR_GREEN "Test OK\n");
@@ -166,7 +168,24 @@ void test_resolucion(){
 }
 
 void test_archivo_salida(){
+    printf(ANSI_COLOR_YELLOW "START TESTS: ARCHIVO SALIDA.\n");
+    int result;
+    FILE* outputFile = NULL;
 
+    result = checkForOutputPath("file.pgm",outputFile);
+    printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "file.pgm\n");
+    assertPropio(result == 0, "El parseo fue correcto");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = checkForOutputPath("/dir/file.pgm",outputFile);
+    printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "/dir/file.pgm\n");
+    assertPropio(result == -1, "El archivo de salida es invalido");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = checkForOutputPath(NULL,outputFile);
+    printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "NULL\n");
+    assertPropio(result == -1, "El archivo de salida es nulo");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
 }
 
 void assertPropio(int condition, char* msg)
@@ -178,7 +197,7 @@ void assertPropio(int condition, char* msg)
 }
 
 int main(int argc, char *argv[]){
-	test_chars_validos_nro_imaginario();
+	//test_chars_validos_nro_imaginario();
 	test_resolucion();
 	test_archivo_salida();
     return 0;
