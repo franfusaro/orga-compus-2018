@@ -13,6 +13,7 @@
 
 typedef struct receivedParameters {
 	FILE* output;
+    char* path_to_output;
 	resolution_t resolution;
 	float width;
 	float height;
@@ -39,14 +40,16 @@ void showVersion(void);
 void showHelp();
 void showError(int);
 void returnValidation(int);
+void julia(parameters_t);
 parameters_t getParameters(int argc, char **argv);
-parameters_t getParameters(int argc, char **argv){
 
+parameters_t getParameters(int argc, char **argv){
     int ch;
     parameters_t receivedParameters;
 
     //valores por defecto
     receivedParameters.output = NULL;
+    receivedParameters.path_to_output = "output.pgm";
     receivedParameters.resolution.width = 640; 
     receivedParameters.resolution.height = 480;
     receivedParameters.center.real = 0; 
@@ -62,7 +65,7 @@ parameters_t getParameters(int argc, char **argv){
         // check to see if a single character or long option came through
         switch (ch){
             case 'o':
-                returnValidation(checkForOutputPath(optarg,receivedParameters.output));
+                returnValidation(checkForOutputPath(optarg,receivedParameters.output,&receivedParameters.path_to_output));
                 break;
             case 'c':
                 returnValidation(parseNroImg(optarg,&receivedParameters.center));
@@ -160,6 +163,19 @@ void showError(int errorCode) {
     }
 }
 
+void julia(parameters_t parameters){
+//    para cada pixel $p {
+//        $f = complejo asociado a $p;
+//        for ($i = 0; $i < $N - 1; ++$i) {
+//            if (abs($f) > 2)
+//                break;
+//            $f = $f * $f + $s;
+//        }
+//        dibujar el punto p con brillo $i;
+//    }
+
+}
+
 int main(int argc, char *argv[]){
 	int result = 0;
 	parameters_t receivedParameters = getParameters(argc,argv);
@@ -171,5 +187,7 @@ int main(int argc, char *argv[]){
 	printf("SEED: %.16Lf\n", receivedParameters.seed.img);
 	printf("WIDTH: %f\n", receivedParameters.width);
 	printf("HEIGHT: %f\n", receivedParameters.height);
+    printf("OUTPUT PATH: %s\n", receivedParameters.path_to_output);
+    julia(receivedParameters);
     return result;
 }

@@ -103,7 +103,7 @@ int parseResolution(char* resolstr, resolution_t* resolution) {
     return 0;
 }
 
-int checkForOutputPath(char* path, FILE* file){
+int checkForOutputPath(char* path, FILE* file, char** path_to_save){
     if (path == NULL) return ERR_VACIO; // Chequea que el path no sea nulo
 
     if(checkForBadCharacters(path) == -1) return ERR_INVALID_CHARS;
@@ -112,10 +112,12 @@ int checkForOutputPath(char* path, FILE* file){
 
     if (strcmp(path, "-") == 0) file = stdout; // Si el nombre del archivo es "-" se utilizara la salida estandar
     else if (!(file = fopen(path, "w"))) return ERR_INVALID_FILE_PATH;
+
+    *path_to_save = path;
     return 0;
 }
 
-char* getFileExtension(char *path) {
+char* getFileExtension(char* path) {
     char *ext = strrchr(path, '.');
     return (ext && ext != path) ? ext : (path + strlen(path));
 }
