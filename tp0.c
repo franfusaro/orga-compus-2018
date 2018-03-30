@@ -20,8 +20,8 @@
 typedef struct receivedParameters {
 	FILE* output;
 	resolution_t resolution;
-	int width;
-	int height;
+	float width;
+	float height;
 	nro_imaginario_t center; //queda string hasta que piense una mejor forma de representar un numero complejo (con una struct quizas??)
 	nro_imaginario_t seed; //queda string hasta que piense una mejor forma de representar un numero complejo (con una struct quizas??)
 } parameters_t;
@@ -84,9 +84,9 @@ parameters_t getParameters(int argc, char **argv){
                 exit(0);
                 break;
             case 'H':
-				receivedParameters.height = atoi(optarg);
+                setValue(optarg,&receivedParameters.height);
             case 'w':
-                receivedParameters.width = atoi(optarg);
+                setValue(optarg,&receivedParameters.width);
                 break;
             case 's':
 				parseNroImg(optarg,&receivedParameters.seed);
@@ -155,7 +155,7 @@ int main(int argc, char *argv[]){
 	//printf("CENTER: %s\n",receivedParameters.center);
 	printf("%.16Lf\n", receivedParameters.seed.real);
 	printf("%.16Lf\n", receivedParameters.seed.img);
-	printf("WIDTH: %d\n", receivedParameters.width);
-	printf("HEIGHT: %d\n", receivedParameters.height);
+	printf("WIDTH: %f\n", receivedParameters.width);
+	printf("HEIGHT: %f\n", receivedParameters.height);
     return result;
 }

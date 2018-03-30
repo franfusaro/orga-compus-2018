@@ -22,3 +22,4 @@ int parseResolution(char* resolstr, resolution_t* resolution);
 int checkForOutputPath(char* path, FILE* file);
 char* getFileExtension(char *path);
 int checkForBadCharacters(char* path);
+int setValue(char* strvalue, float* value_to_set);

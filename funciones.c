@@ -131,3 +131,10 @@ int checkForBadCharacters(char* path){
     }
     return 0;
 }
+
+int setValue(char* strvalue, float* value_to_set){
+    float value;
+    if (sscanf(strvalue,"%f",&value) != 1 || value < 0) return -1;
+    value_to_set = &value;
+    return 0;
+}

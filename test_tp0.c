@@ -198,6 +198,42 @@ void test_archivo_salida(){
     printf(ANSI_COLOR_GREEN "Test OK\n");
 }
 
+void test_ancho_alto(){
+    printf(ANSI_COLOR_YELLOW "START TESTS: VALIDACION DE ANCHO/ALTO.\n");
+    int result;
+    float value;
+
+    result = setValue("",&value);
+    printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "\n");
+    assertPropio(result == -1, "No se ingreso ningun valor");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = setValue("2",&value);
+    printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "2\n");
+    assertPropio(result == 0, "El parseo fue correcto");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = setValue("0.0005",&value);
+    printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "0.0005\n");
+    assertPropio(result == 0, "El parseo fue correcto");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = setValue("aaaaaa",&value);
+    printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "aaaaaa\n");
+    assertPropio(result == -1, "Se ingreso un valor alfabetico");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = setValue("\\00x\\00",&value);
+    printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "\\00x\\00\n");
+    assertPropio(result == -1, "Se ingreso un caracter invalido");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = setValue("****",&value);
+    printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "****\n");
+    assertPropio(result == -1, "Se ingreso un caracter invalido");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+}
+
 void assertPropio(int condition, char* msg)
 {
 	if (!condition) {
@@ -210,5 +246,6 @@ int main(int argc, char *argv[]){
 	//test_chars_validos_nro_imaginario();
 	test_resolucion();
 	test_archivo_salida();
+    test_ancho_alto();
     return 0;
 }
