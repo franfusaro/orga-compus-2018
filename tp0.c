@@ -7,6 +7,9 @@
 #include <poll.h>
 #include <errno.h>
 #include <getopt.h>
+#include <float.h>
+#include <assert.h>
+#include "funciones.h"
 
 #define ERROR_INVALID_PARAMETERS 0
 #define ERROR_INVALID_INPUT_FILE 1
@@ -15,13 +18,18 @@
 #define ERROR_NO_TEXT_GIVEN 4
 
 
-typedef struct receivedParameters {
-	char* output;
-	char* resolution; //queda string hasta que piense una mejor forma de representar la resolucion (con una struct quizas??)
+typedef struct resolution {
 	int width;
 	int height;
-	char* center; //queda string hasta que piense una mejor forma de representar un numero complejo (con una struct quizas??)
-	char* seed; //queda string hasta que piense una mejor forma de representar un numero complejo (con una struct quizas??)
+} resolution_t;
+
+typedef struct receivedParameters {
+	char* output;
+	resolution_t resolution; //queda string hasta que piense una mejor forma de representar la resolucion (con una struct quizas??)
+	int width;
+	int height;
+	nro_imaginario_t center; //queda string hasta que piense una mejor forma de representar un numero complejo (con una struct quizas??)
+	nro_imaginario_t seed; //queda string hasta que piense una mejor forma de representar un numero complejo (con una struct quizas??)
 } parameters_t;
 
 static struct option long_options[] =
@@ -42,21 +50,40 @@ static struct option long_options[] =
 void showVersion(void);
 void showHelp();
 parameters_t getParameters(int argc, char **argv);
+resolution_t parseResolution(char* resolution);
 
-/* ------------------------ */
+
+
+resolution_t parseResolution(char* resolution)
+{
+	char** res = str_split(resolution,'x');
+	resolution_t resol;
+	if (res)
+    {
+		resol.width = (intptr_t)*(res);
+		resol.height = (intptr_t)*(res + 1);
+        free(res);
+    }
+    return resol;
+}
 
 parameters_t getParameters(int argc, char **argv){
 
     int ch;
     parameters_t receivedParameters;
 
+    //valores por defecto
     receivedParameters.output = NULL;
-    receivedParameters.resolution = "640x480"; //valores por defecto
-    receivedParameters.center = "0+0i"; //valores por defecto
-    receivedParameters.width = 2; //valores por defecto
-    receivedParameters.height = 2; //valores por defecto
-    receivedParameters.seed = "-0.726895347709114071439+0.188887129043845954792i"; //valores por defecto
-
+    receivedParameters.resolution.width = 640; 
+    receivedParameters.resolution.height = 480;
+    receivedParameters.center.real = 0; 
+    receivedParameters.center.img = 0;
+    receivedParameters.width = 2;
+    receivedParameters.height = 2; 
+    receivedParameters.seed.real = -0.726895347709114071439;
+    receivedParameters.seed.img = 0.188887129043845954792; 
+    //fin valores por defecto
+    
     // loop over all of the options
     while ((ch = getopt_long(argc, argv, "hVi:o:I:O:", long_options, NULL)) != -1) {
         // check to see if a single character or long option came through
@@ -65,10 +92,10 @@ parameters_t getParameters(int argc, char **argv){
                 receivedParameters.output = optarg;
                 break;
             case 'c':
-                receivedParameters.center = optarg;
+                receivedParameters.center = parseNroImg(optarg);
                 break;
             case 'r':
-                receivedParameters.resolution = optarg;
+                receivedParameters.resolution = parseResolution(optarg);
                 break;
             case 'V':
                 showVersion();
@@ -84,7 +111,7 @@ parameters_t getParameters(int argc, char **argv){
                 receivedParameters.width = atoi(optarg);
                 break;
             case 's':
-                receivedParameters.seed = optarg;
+				receivedParameters.seed = parseNroImg(optarg);
                 break;
             case '?':
                 if (optopt == 'o' || optopt == 'c' || optopt == 'H' || optopt == 'w' || optopt == 's') {
@@ -141,13 +168,15 @@ void showError(int errorCode){
     }
 }
 
-
 int main(int argc, char *argv[]){
 	int result = 0;
 	parameters_t receivedParameters = getParameters(argc,argv);
-	printf("RESOLUTION: %s\n", receivedParameters.resolution);
-	printf("SEED: %s\n", receivedParameters.seed);
-	printf("CENTER: %s\n",receivedParameters.center);
+	printf("RESOLUTION WIDTH: %d\n", receivedParameters.resolution.width);
+	printf("RESOLUTION HEIGHT: %d\n", receivedParameters.resolution.height);
+	//printf("SEED: %s\n", receivedParameters.seed);
+	//printf("CENTER: %s\n",receivedParameters.center);
+	printf("%.16Lf\n", receivedParameters.seed.real);
+	printf("%.16Lf\n", receivedParameters.seed.img);
 	printf("WIDTH: %d\n", receivedParameters.width);
 	printf("HEIGHT: %d\n", receivedParameters.height);
     return result;
