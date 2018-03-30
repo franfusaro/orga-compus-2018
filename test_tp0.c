@@ -80,6 +80,49 @@ void test_chars_validos_nro_imaginario()
 	
 }
 
+void test_resolucion(){
+	printf(ANSI_COLOR_YELLOW "START TESTS: RESOLUCION.\n");
+    resolution_t resol;
+    int result = parseResolution("800x600",&resol);
+	printf(ANSI_COLOR_YELLOW "Parseando resolucion:" ANSI_COLOR_WHITE "800x600\n");
+	assertPropio(result == 0, "El parseo fue correcto");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = parseResolution("1480x1970",&resol);
+    printf(ANSI_COLOR_YELLOW "Parseando resolucion:" ANSI_COLOR_WHITE "1480x1970\n");
+    assertPropio(result == 0, "El parseo fue correcto");
+	printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = parseResolution("aaaaaaaa",&resol);
+    printf(ANSI_COLOR_YELLOW "Parseando resolucion:" ANSI_COLOR_WHITE "aaaaaaaa\n");
+    assertPropio(result == -1, "El parseo fue correcto");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = parseResolution("aaaaxaaaa",&resol);
+    printf(ANSI_COLOR_YELLOW "Parseando resolucion:" ANSI_COLOR_WHITE "aaaaxaaaa\n");
+    assertPropio(result == -1, "El parseo fue correcto");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = parseResolution("-123x456i",&resol);
+    printf(ANSI_COLOR_YELLOW "Parseando resolucion:" ANSI_COLOR_WHITE "-123x456i\n");
+    assertPropio(result == -1, "El parseo fue correcto");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = parseResolution("12354528",&resol);
+    printf(ANSI_COLOR_YELLOW "Parseando resolucion:" ANSI_COLOR_WHITE "12354528\n");
+    assertPropio(result == -1, "El parseo fue correcto");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = parseResolution("\\00x\\00",&resol);
+    printf(ANSI_COLOR_YELLOW "Parseando resolucion:" ANSI_COLOR_WHITE "\\00x\\00\n");
+    assertPropio(result == -1, "El parseo fue correcto");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+}
+
+void test_archivo_salida(){
+
+}
+
 void assertPropio(int condition, char* msg)
 {
 	if (!condition) {
@@ -90,5 +133,7 @@ void assertPropio(int condition, char* msg)
 
 int main(int argc, char *argv[]){
 	test_chars_validos_nro_imaginario();
+	test_resolucion();
+	test_archivo_salida();
     return 0;
 }

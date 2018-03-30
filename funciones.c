@@ -16,6 +16,8 @@
 ------------------------------*/	 
 char** str_split(char* a_str, const char a_delim)
 {
+    printf("heeeeeey");
+
     char** result    = 0;
     size_t count     = 0;
     char* tmp        = a_str;
@@ -23,6 +25,8 @@ char** str_split(char* a_str, const char a_delim)
     char delim[2];
     delim[0] = a_delim;
     delim[1] = 0;
+
+    printf("now got here");
 
     /* Count how many elements will be extracted. */
     while (*tmp)
@@ -35,12 +39,16 @@ char** str_split(char* a_str, const char a_delim)
         tmp++;
     }
 
+    printf("got here");
+
     /* Add space for trailing token. */
     count += last_comma < (a_str + strlen(a_str) - 1);
 
     /* Add space for terminating null string so caller
        knows where the list of returned strings ends. */
     count++;
+
+    printf("and now got here");
 
     result = malloc(sizeof(char*) * count);
 
@@ -58,6 +66,8 @@ char** str_split(char* a_str, const char a_delim)
         assert(idx == count - 1);
         *(result + idx) = 0;
     }
+
+    printf("about to return");
     return result;
 }
 
@@ -75,4 +85,17 @@ int parseNroImg(char* nro, nro_imaginario_t* nro_img){
 	nro_img->real = 3;
 	nro_img->img = 3;
 	return 0;
+}
+
+int parseResolution(char* resolstr, resolution_t* resolution) {
+    int width, height;
+    char separator, rest;
+
+    if (sscanf(resolstr, "%d%c%d %c", &width, &separator, &height, &rest) != 3 || width <= 0 || separator != 'x' || height <= 0){
+        return -1;
+    }
+
+    resolution->width = width;
+    resolution->height = height;
+    return 0;
 }

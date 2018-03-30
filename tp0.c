@@ -17,15 +17,9 @@
 #define ERROR_INVALID_OUTPUT_FILE 3
 #define ERROR_NO_TEXT_GIVEN 4
 
-
-typedef struct resolution {
-	int width;
-	int height;
-} resolution_t;
-
 typedef struct receivedParameters {
 	char* output;
-	resolution_t resolution; //queda string hasta que piense una mejor forma de representar la resolucion (con una struct quizas??)
+	resolution_t resolution;
 	int width;
 	int height;
 	nro_imaginario_t center; //queda string hasta que piense una mejor forma de representar un numero complejo (con una struct quizas??)
@@ -50,22 +44,6 @@ static struct option long_options[] =
 void showVersion(void);
 void showHelp();
 parameters_t getParameters(int argc, char **argv);
-resolution_t parseResolution(char* resolution);
-
-
-
-resolution_t parseResolution(char* resolution)
-{
-	char** res = str_split(resolution,'x');
-	resolution_t resol;
-	if (res)
-    {
-		resol.width = (intptr_t)*(res);
-		resol.height = (intptr_t)*(res + 1);
-        free(res);
-    }
-    return resol;
-}
 
 parameters_t getParameters(int argc, char **argv){
 
@@ -95,7 +73,7 @@ parameters_t getParameters(int argc, char **argv){
                 parseNroImg(optarg,&receivedParameters.center);
                 break;
             case 'r':
-                receivedParameters.resolution = parseResolution(optarg);
+                parseResolution(optarg,&receivedParameters.resolution);
                 break;
             case 'V':
                 showVersion();
