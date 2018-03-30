@@ -92,7 +92,7 @@ parameters_t getParameters(int argc, char **argv){
                 receivedParameters.output = optarg;
                 break;
             case 'c':
-                receivedParameters.center = parseNroImg(optarg);
+                parseNroImg(optarg,&receivedParameters.center);
                 break;
             case 'r':
                 receivedParameters.resolution = parseResolution(optarg);
@@ -111,7 +111,7 @@ parameters_t getParameters(int argc, char **argv){
                 receivedParameters.width = atoi(optarg);
                 break;
             case 's':
-				receivedParameters.seed = parseNroImg(optarg);
+				parseNroImg(optarg,&receivedParameters.seed);
                 break;
             case '?':
                 if (optopt == 'o' || optopt == 'c' || optopt == 'H' || optopt == 'w' || optopt == 's') {
