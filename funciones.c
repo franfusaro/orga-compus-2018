@@ -82,8 +82,20 @@ int stringContainsChar(char* string, const char* ch)
 }
 
 int parseNroImg(char* nro, nro_imaginario_t* nro_img){
-	nro_img->real = 3;
-	nro_img->img = 3;
+    char* nroImg = strdup(nro);
+	char** nroSpliteado;
+	if (stringContainsChar(nroImg, "+") == 0)
+	{
+		nroSpliteado = str_split(nroImg,'+');
+	}
+	else if (stringContainsChar(nroImg, "-") == 0)
+	{
+		nroSpliteado = str_split(nroImg,'-');
+	}
+	if (nroSpliteado){
+		nro_img->real = strtold(*(nroSpliteado), NULL);
+		nro_img->img = strtold(*(nroSpliteado + 1), NULL);
+	}
 	return 0;
 }
 
