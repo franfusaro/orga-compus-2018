@@ -72,4 +72,8 @@ int stringContainsChar(char* string, const char* ch)
 }
 
 nro_imaginario_t parseNroImg(char* nro){
+	nro_imaginario_t nro_img;
+	nro_img.real = 3;
+	nro_img.img = 3;
+	return nro_img;
 }
