@@ -95,7 +95,7 @@ int parseResolution(char* resolstr, resolution_t* resolution) {
     char separator, rest;
 
     if (sscanf(resolstr, "%d%c%d %c", &width, &separator, &height, &rest) != 3 || width <= 0 || separator != 'x' || height <= 0){
-        return -1;
+        return ERR_INVALID_RESOLUTION;
     }
 
     resolution->width = width;
@@ -104,15 +104,14 @@ int parseResolution(char* resolstr, resolution_t* resolution) {
 }
 
 int checkForOutputPath(char* path, FILE* file){
-    if (path == NULL) return -1; // Chequea que el path no sea nulo
+    if (path == NULL) return ERR_VACIO; // Chequea que el path no sea nulo
 
-    if(checkForBadCharacters(path) == -1) return -1;
+    if(checkForBadCharacters(path) == -1) return ERR_INVALID_CHARS;
 
-    if(strcmp(getFileExtension(path), ".pgm") != 0) return -1;
+    if(strcmp(getFileExtension(path), ".pgm") != 0) return ERR_INVALID_FILE_TYPE;
 
     if (strcmp(path, "-") == 0) file = stdout; // Si el nombre del archivo es "-" se utilizara la salida estandar
-    else if (!(file = fopen(path, "w"))) return -1;
-
+    else if (!(file = fopen(path, "w"))) return ERR_INVALID_FILE_PATH;
     return 0;
 }
 
@@ -134,7 +133,7 @@ int checkForBadCharacters(char* path){
 
 int setValue(char* strvalue, float* value_to_set){
     float value;
-    if (sscanf(strvalue,"%f",&value) != 1 || value < 0) return -1;
+    if (sscanf(strvalue,"%f",&value) != 1 || value < 0) return ERR_INVALID_PARAMETER;
     value_to_set = &value;
     return 0;
 }

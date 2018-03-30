@@ -143,27 +143,27 @@ void test_resolucion(){
 
     result = parseResolution("aaaaaaaa",&resol);
     printf(ANSI_COLOR_YELLOW "Parseando resolucion:" ANSI_COLOR_WHITE "aaaaaaaa\n");
-    assertPropio(result == -1, "El parseo fue correcto");
+    assertPropio(result == ERR_INVALID_RESOLUTION, "El parseo fue correcto");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
     result = parseResolution("aaaaxaaaa",&resol);
     printf(ANSI_COLOR_YELLOW "Parseando resolucion:" ANSI_COLOR_WHITE "aaaaxaaaa\n");
-    assertPropio(result == -1, "El parseo fue correcto");
+    assertPropio(result == ERR_INVALID_RESOLUTION, "El parseo fue correcto");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
     result = parseResolution("-123x456i",&resol);
     printf(ANSI_COLOR_YELLOW "Parseando resolucion:" ANSI_COLOR_WHITE "-123x456i\n");
-    assertPropio(result == -1, "El parseo fue correcto");
+    assertPropio(result == ERR_INVALID_RESOLUTION, "El parseo fue correcto");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
     result = parseResolution("12354528",&resol);
     printf(ANSI_COLOR_YELLOW "Parseando resolucion:" ANSI_COLOR_WHITE "12354528\n");
-    assertPropio(result == -1, "El parseo fue correcto");
+    assertPropio(result == ERR_INVALID_RESOLUTION, "El parseo fue correcto");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
     result = parseResolution("\\00x\\00",&resol);
     printf(ANSI_COLOR_YELLOW "Parseando resolucion:" ANSI_COLOR_WHITE "\\00x\\00\n");
-    assertPropio(result == -1, "El parseo fue correcto");
+    assertPropio(result == ERR_INVALID_RESOLUTION, "El parseo fue correcto");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 }
 
@@ -179,22 +179,22 @@ void test_archivo_salida(){
 
     result = checkForOutputPath("/dir/file.pgm",outputFile);
     printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "/dir/file.pgm\n");
-    assertPropio(result == -1, "El archivo de salida es invalido");
+    assertPropio(result == ERR_INVALID_FILE_PATH, "El archivo de salida es invalido");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
     result = checkForOutputPath(NULL,outputFile);
     printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "NULL\n");
-    assertPropio(result == -1, "El archivo de salida es nulo");
+    assertPropio(result == ERR_VACIO, "El archivo de salida es nulo");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
     result = checkForOutputPath("aa*",outputFile);
     printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "aa*\n");
-    assertPropio(result == -1, "El archivo de salida tiene caracteres invalidos");
+    assertPropio(result == ERR_INVALID_CHARS, "El archivo de salida tiene caracteres invalidos");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
     result = checkForOutputPath("archivo.jpg",outputFile);
     printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "archivo.jpg\n");
-    assertPropio(result == -1, "El archivo de salida tiene una extension invalida");
+    assertPropio(result == ERR_INVALID_FILE_TYPE, "El archivo de salida tiene una extension invalida");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 }
 
@@ -205,7 +205,7 @@ void test_ancho_alto(){
 
     result = setValue("",&value);
     printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "\n");
-    assertPropio(result == -1, "No se ingreso ningun valor");
+    assertPropio(result == ERR_INVALID_PARAMETER, "No se ingreso ningun valor");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
     result = setValue("2",&value);
@@ -220,17 +220,17 @@ void test_ancho_alto(){
 
     result = setValue("aaaaaa",&value);
     printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "aaaaaa\n");
-    assertPropio(result == -1, "Se ingreso un valor alfabetico");
+    assertPropio(result == ERR_INVALID_PARAMETER, "Se ingreso un valor alfabetico");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
     result = setValue("\\00x\\00",&value);
     printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "\\00x\\00\n");
-    assertPropio(result == -1, "Se ingreso un caracter invalido");
+    assertPropio(result == ERR_INVALID_PARAMETER, "Se ingreso un caracter invalido");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
     result = setValue("****",&value);
     printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "****\n");
-    assertPropio(result == -1, "Se ingreso un caracter invalido");
+    assertPropio(result == ERR_INVALID_PARAMETER, "Se ingreso un caracter invalido");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 }
 
@@ -243,7 +243,7 @@ void assertPropio(int condition, char* msg)
 }
 
 int main(int argc, char *argv[]){
-	//test_chars_validos_nro_imaginario();
+	test_chars_validos_nro_imaginario();
 	test_resolucion();
 	test_archivo_salida();
     test_ancho_alto();

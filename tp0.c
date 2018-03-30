@@ -11,12 +11,6 @@
 #include <assert.h>
 #include "funciones.h"
 
-#define ERROR_INVALID_PARAMETERS 0
-#define ERROR_INVALID_INPUT_FILE 1
-#define ERROR_EMPTY_INPUT_FILE 2
-#define ERROR_INVALID_OUTPUT_FILE 3
-#define ERROR_NO_TEXT_GIVEN 4
-
 typedef struct receivedParameters {
 	FILE* output;
 	resolution_t resolution;
@@ -43,8 +37,9 @@ static struct option long_options[] =
 
 void showVersion(void);
 void showHelp();
+void showError(int);
+void returnValidation(int);
 parameters_t getParameters(int argc, char **argv);
-
 parameters_t getParameters(int argc, char **argv){
 
     int ch;
@@ -67,13 +62,13 @@ parameters_t getParameters(int argc, char **argv){
         // check to see if a single character or long option came through
         switch (ch){
             case 'o':
-                checkForOutputPath(optarg,receivedParameters.output);
+                returnValidation(checkForOutputPath(optarg,receivedParameters.output));
                 break;
             case 'c':
-                parseNroImg(optarg,&receivedParameters.center);
+                returnValidation(parseNroImg(optarg,&receivedParameters.center));
                 break;
             case 'r':
-                parseResolution(optarg,&receivedParameters.resolution);
+                returnValidation(parseResolution(optarg,&receivedParameters.resolution));
                 break;
             case 'V':
                 showVersion();
@@ -84,12 +79,12 @@ parameters_t getParameters(int argc, char **argv){
                 exit(0);
                 break;
             case 'H':
-                setValue(optarg,&receivedParameters.height);
+                returnValidation(setValue(optarg,&receivedParameters.height)); //No se si deberia validarse tambien que ancho y alto sean mas chicos que los valores de la resolucion?
             case 'w':
-                setValue(optarg,&receivedParameters.width);
+                returnValidation(setValue(optarg,&receivedParameters.width));
                 break;
             case 's':
-				parseNroImg(optarg,&receivedParameters.seed);
+				returnValidation(parseNroImg(optarg,&receivedParameters.seed));
                 break;
             case '?':
                 if (optopt == 'o' || optopt == 'c' || optopt == 'H' || optopt == 'w' || optopt == 's') {
@@ -108,41 +103,60 @@ parameters_t getParameters(int argc, char **argv){
 
 }
 
+void returnValidation(int result){
+    if (result < 0){
+        showError(result);
+        exit(1);
+    }
+}
 
 void showHelp(){
-	printf("%s\n", "TP0 Organizacion de computadoras - HELP");
-	printf("%s\n", "Usage: ");
-	printf("%s\n", "tp0 -h");
-	printf("%s\n", "tp0 -V");
-	printf("%s\n", "tp0 [options] file");
-	printf("%s\n", "tp0 Options:");
-	printf("%s\n", "-V --version	Print version and quit");
-	printf("%s\n", "-h --help		Print this information");
-	printf("%s\n", "-o --output		Path to output file");
-	printf("%s\n", "-i --input		Path to input file");
-	printf("%s\n", "Examples: ");
-	printf("%s\n", "tp0 -q -i input.txt -o output.txt");
+    printf("%s\n", "TP0 Organizacion de computadoras - HELP");
+    printf("%s\n", "Usage: ");
+    printf("%s\n", "tp0 -h   Displays help and usage of the application");
+    printf("%s\n", "tp0 -V   Displays version of the application");
+    printf("%s\n", "tp0 Options:");
+    printf("%s\n", "-r --resolution  Set bitmap resolution to WxH pixels");
+    printf("%s\n", "-c --center      Set the center of the image");
+    printf("%s\n", "-w --width       Set the width of the region to be spanned");
+    printf("%s\n", "-H --height      Set the height of the region to be spanned");
+    printf("%s\n", "-o --output      Set path to output file");
+    printf("%s\n", "Examples: ");
+    printf("%s\n", "  tp0 -r 1024x768 -o example.pgm");
+    printf("%s\n", "  tp0 -c 0.282-0.007i -w 0.005 -H 0.005 -o example.pgm");
 }
 
 void showVersion(){
 	printf("%s\n", "TP0 Organizacion de computadoras - VERSION: 1.0");
 }
 
-void showError(int errorCode){
-	if(errorCode == ERROR_INVALID_INPUT_FILE){
-		fprintf(stderr,"%s\n","Invalid input file. Type 'tp0 -h' for help. Program terminated");
-	}
-	if(errorCode == ERROR_EMPTY_INPUT_FILE){
-		fprintf(stderr,"%s\n", "Input file is empty. Type 'tp0 -h' for help. Program terminated");
-	}
-	if(errorCode == ERROR_INVALID_OUTPUT_FILE){
-		fprintf(stderr,"%s\n", "Invalid output file, check path. Type 'tp0 -h' for help. Program terminated");
-	}
-	if(errorCode == ERROR_INVALID_PARAMETERS){
-		fprintf(stderr,"%s\n","Invalid arguments. Type 'tp0 -h' for help. Program terminated");
-	}
-    if(errorCode == ERROR_NO_TEXT_GIVEN){
-        fprintf(stderr,"%s\n", "No text passed to verify");
+void showError(int errorCode) {
+    if (errorCode == ERR_VACIO) {
+        fprintf(stderr, "%s\n", "Parameter input is empty. Type 'tp0 -h' for help. Program terminated");
+    }
+    if (errorCode == ERR_INVALID_CHARS) {
+        fprintf(stderr, "%s\n", "Argument has invalid characters. Type 'tp0 -h' for help. Program terminated");
+    }
+    if (errorCode == ERR_INVALID_FORMAT) {
+        fprintf(stderr, "%s\n", "Invalid arguments. Type 'tp0 -h' for help. Program terminated");
+    }
+    if (errorCode == ERR_NO_REAL_PART) {
+        fprintf(stderr, "%s\n", "Parameter has no real part. Type 'tp0 -h' for help. Program terminated");
+    }
+    if (errorCode == ERR_NO_IMG_PART) {
+        fprintf(stderr, "%s\n", "Parameter has no immaginary part. Type 'tp0 -h' for help. Program terminated");
+    }
+    if (errorCode == ERR_INVALID_RESOLUTION) {
+        fprintf(stderr, "%s\n", "Resolution input is invalid. Type 'tp0 -h' for help. Program terminated");
+    }
+    if (errorCode == ERR_INVALID_FILE_TYPE) {
+        fprintf(stderr, "%s\n", "Output file type is invalid. Type 'tp0 -h' for help. Program terminated");
+    }
+    if (errorCode == ERR_INVALID_FILE_PATH) {
+        fprintf(stderr, "%s\n", "Output file path is invalid. Type 'tp0 -h' for help. Program terminated");
+    }
+    if (errorCode == ERR_INVALID_PARAMETER) {
+        fprintf(stderr, "%s\n", "Parameter input is invalid. Type 'tp0 -h' for help. Program terminated");
     }
 }
 
@@ -153,8 +167,8 @@ int main(int argc, char *argv[]){
 	printf("RESOLUTION HEIGHT: %d\n", receivedParameters.resolution.height);
 	//printf("SEED: %s\n", receivedParameters.seed);
 	//printf("CENTER: %s\n",receivedParameters.center);
-	printf("%.16Lf\n", receivedParameters.seed.real);
-	printf("%.16Lf\n", receivedParameters.seed.img);
+	printf("SEED: %.16Lf\n", receivedParameters.seed.real);
+	printf("SEED: %.16Lf\n", receivedParameters.seed.img);
 	printf("WIDTH: %f\n", receivedParameters.width);
 	printf("HEIGHT: %f\n", receivedParameters.height);
     return result;

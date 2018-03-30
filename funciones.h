@@ -3,6 +3,10 @@
 #define ERR_INVALID_FORMAT -3
 #define ERR_NO_REAL_PART -4
 #define ERR_NO_IMG_PART -5
+#define ERR_INVALID_RESOLUTION -6
+#define ERR_INVALID_FILE_TYPE -7
+#define ERR_INVALID_FILE_PATH -8
+#define ERR_INVALID_PARAMETER -9
 
 typedef struct nro_imaginario
 {
