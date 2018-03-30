@@ -7,4 +7,4 @@ typedef struct nro_imaginario
 
 char** str_split(char* a_str, const char a_delim);
 int stringContainsChar(char* string, const char* ch);
-nro_imaginario_t parseNroImg(char* nro);
+int parseNroImg(char* nro, nro_imaginario_t* nro_img);
