@@ -164,6 +164,43 @@ void showError(int errorCode) {
 }
 
 void julia(parameters_t parameters){
+	//Calculo los incrementos en alto y ancho
+	float stepWidth = parameters.width / parameters.resolution.width;
+	float stepHeight = parameters.height / parameters.resolution.height;
+	nro_imaginario_t currentPixel;
+	//Calculo el primer pixel segun el centro
+	nro_imaginario_t startPixel;
+	startPixel.real = parameters.center.real - (parameters.width/2);
+	startPixel.img = parameters.center.img - (parameters.height/2);
+	int N = 255;
+	int brillo = 0;
+	//para cada pixel $p {
+	for (int i = 0; i < parameters.resolution.height; i++)
+	{
+		for (int j = 0; j < parameters.resolution.width; j++)
+		{
+			//$f = complejo asociado a $p;
+			currentPixel.real = startPixel.real + (stepWidth * j);
+			currentPixel.img = startPixel.img + (stepHeight * j);
+			//for ($i = 0; $i < $N - 1; ++$i) {
+			for (brillo = 0; brillo < N; ++brillo)
+			{
+				//if (abs($f) > 2)
+				if (getNroImgAbs(currentPixel) > 2)
+				{
+					//break;
+					break;
+				}
+				//$f = $f * $f + $s;
+				currentPixel = getNroImgSq(currentPixel);
+				currentPixel.real = currentPixel.real + parameters.seed.real;
+				currentPixel.img = currentPixel.img + parameters.seed.img;
+			}
+			//dibujar el punto p con brillo $i;
+			printf("%d ",brillo); 
+		}
+	}
+	
 //    para cada pixel $p {
 //        $f = complejo asociado a $p;
 //        for ($i = 0; $i < $N - 1; ++$i) {

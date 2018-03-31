@@ -9,6 +9,7 @@
 #include <getopt.h>
 #include <float.h>
 #include <assert.h>
+#include <math.h>
 #include "funciones.h"
 
 /* -----------------------------
@@ -145,4 +146,17 @@ int setValue(char* strvalue, float* value_to_set){
     if (sscanf(strvalue,"%f",&value) != 1 || value < 0) return ERR_INVALID_PARAMETER;
     value_to_set = &value;
     return 0;
+}
+
+long double getNroImgAbs(nro_imaginario_t nro)
+{
+	return sqrt(nro.real*nro.real + nro.img*nro.img);
+}
+
+nro_imaginario_t getNroImgSq(nro_imaginario_t nro)
+{
+	nro_imaginario_t sqrNro;
+	sqrNro.real = (nro.real * nro.real) - (nro.img * nro.img);
+	sqrNro.img = 2 * nro.real * nro.img;
+	return sqrNro;
 }

@@ -27,3 +27,5 @@ int checkForOutputPath(char* path, FILE* file, char** path_to_save);
 char* getFileExtension(char *path);
 int checkForBadCharacters(char* path);
 int setValue(char* strvalue, float* value_to_set);
+long double getNroImgAbs(nro_imaginario_t nro);
+nro_imaginario_t getNroImgSq(nro_imaginario_t nro);
