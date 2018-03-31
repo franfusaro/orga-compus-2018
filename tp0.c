@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <math.h>
 #include <stdint.h>
 #include <ctype.h>
 #include <unistd.h>
@@ -52,8 +52,8 @@ parameters_t getParameters(int argc, char **argv){
     //valores por defecto
     receivedParameters.output = NULL;
     receivedParameters.path_to_output = "output.pgm";
-    receivedParameters.resolution.width = 200;
-    receivedParameters.resolution.height = 100;
+    receivedParameters.resolution.width = 640;
+    receivedParameters.resolution.height = 480;
     receivedParameters.center.real = 0; 
     receivedParameters.center.img = 0;
     receivedParameters.width = 2;
@@ -184,32 +184,45 @@ void julia(parameters_t parameters){
 	int N = parameters.color.max;
 	int brillo = parameters.color.min;
 
+    int charAmount = 0;
 	//para cada pixel $p {
-	for (int i = 0; i < parameters.resolution.height; i++)
+	for (int i = 0; i < parameters.resolution.width; i++)
 	{
-		for (int j = 0; j < parameters.resolution.width; j++)
+		for (int j = 0; j < parameters.resolution.height; j++)
 		{
 			//$f = complejo asociado a $p;
-			currentPixel.real = startPixel.real + (stepWidth * j);
+			currentPixel.real = startPixel.real + (stepWidth * i);
 			currentPixel.img = startPixel.img + (stepHeight * j);
 			//for ($i = 0; $i < $N - 1; ++$i) {
-			for (brillo = 0; brillo < N; ++brillo)
-			{
-				//if (abs($f) > 2)
-				if (getNroImgAbs(currentPixel) > 2)
-				{
-					//break;
-					break;
-				}
-				//$f = $f * $f + $s;
-				currentPixel = getNroImgSq(currentPixel);
-				currentPixel.real = currentPixel.real + parameters.seed.real;
-				currentPixel.img = currentPixel.img + parameters.seed.img;
-			}
-			//dibujar el punto p con brillo $i;
-			fprintf(parameters.output,"%d ",brillo);
+			for (brillo = 0; brillo < N; ++brillo) {
+                //if (abs($f) > 2)
+                if (getNroImgAbs(currentPixel) > 2) {
+                    //break;
+                    break;
+                }
+                //$f = $f * $f + $s;
+                currentPixel = getNroImgSq(currentPixel);
+                currentPixel.real = currentPixel.real + parameters.seed.real;
+                currentPixel.img = currentPixel.img + parameters.seed.img;
+            }
+
+            // de acuerdo con la especificacion de pgm, no puede haber mas de 70 caracteres por linea
+            int lengthofchar;
+            if (brillo == 0) lengthofchar = 1;
+            else lengthofchar = (int)floor(log10(abs(brillo))) + 1;
+
+            charAmount += lengthofchar + 1;
+            if(charAmount >= 65){
+                fprintf(parameters.output,"%s","\n");
+                charAmount = 0;
+            }
+
+            //dibujar el punto p con brillo $i;
+            if(fprintf(parameters.output,"%d ",brillo) < 0){
+                fprintf(stderr, "There was an error while writing to output.\n");
+                exit(1);
+            };
 		}
-        fprintf(parameters.output,"%s","\n");
 	}
 
     if (fflush(parameters.output) != 0) {
@@ -231,10 +244,11 @@ void julia(parameters_t parameters){
 
 void writeHeader(parameters_t parameters){
     //PGM Header
-    fprintf(parameters.output,"P2 \n");
-    fprintf(parameters.output,"# %s \n",parameters.path_to_output);
-    fprintf(parameters.output,"%u %u \n",(unsigned)parameters.resolution.width,(unsigned)parameters.resolution.height);
-    fprintf(parameters.output,"%u \n",(unsigned)parameters.color.max);
+    fprintf(parameters.output,"P2\n");
+    fprintf(parameters.output,"# %s\n",parameters.path_to_output);
+    fprintf(parameters.output,"%u\n",(unsigned)parameters.resolution.width);
+    fprintf(parameters.output,"%u\n",(unsigned)parameters.resolution.height);
+    fprintf(parameters.output,"%u\n",(unsigned)parameters.color.max);
 }
 
 int main(int argc, char *argv[]){
