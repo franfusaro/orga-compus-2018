@@ -184,7 +184,6 @@ void julia(parameters_t parameters){
 	int N = parameters.color.max;
 	int brillo = parameters.color.min;
 
-    int charAmount = 0;
 	//para cada pixel $p {
 	for (int i = 0; i < parameters.resolution.width; i++)
 	{
@@ -205,30 +204,20 @@ void julia(parameters_t parameters){
                 currentPixel.real = currentPixel.real + parameters.seed.real;
                 currentPixel.img = currentPixel.img + parameters.seed.img;
             }
-
-            // de acuerdo con la especificacion de pgm, no puede haber mas de 70 caracteres por linea
-            int lengthofchar;
-            if (brillo == 0) lengthofchar = 1;
-            else lengthofchar = (int)floor(log10(abs(brillo))) + 1;
-
-            charAmount += lengthofchar + 1;
-            if(charAmount >= 65){
-                fprintf(parameters.output,"%s","\n");
-                charAmount = 0;
-            }
-
             //dibujar el punto p con brillo $i;
             if(fprintf(parameters.output,"%d ",brillo) < 0){
                 fprintf(stderr, "There was an error while writing to output.\n");
                 exit(1);
             };
 		}
+        fprintf(parameters.output,"\n");
 	}
 
-    if (fflush(parameters.output) != 0) {
-        fprintf(stderr, "cannot flush output file.\n");
+    if (fclose(parameters.output) != 0) {
+        fprintf(stderr, "Unable to close output file.\n");
         exit(1);
     }
+
 	
 //    para cada pixel $p {
 //        $f = complejo asociado a $p;
@@ -243,7 +232,9 @@ void julia(parameters_t parameters){
 }
 
 void writeHeader(parameters_t parameters){
-    //PGM Header
+    // PGM Header - De acuerdo con la especificacion, el header de un archivo PGM debe contener:
+    // El "numero magico" P2, el nombre del archivo con un '#' delante, el ancho de la imagen, el alto de la imagen
+    // y el color mas oscuro que puede llegar a alcanzar (en este caso, el valor 255)
     fprintf(parameters.output,"P2\n");
     fprintf(parameters.output,"# %s\n",parameters.path_to_output);
     fprintf(parameters.output,"%u\n",(unsigned)parameters.resolution.width);
