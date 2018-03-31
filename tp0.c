@@ -17,8 +17,8 @@ typedef struct receivedParameters {
 	resolution_t resolution;
 	float width;
 	float height;
-	nro_imaginario_t center; //queda string hasta que piense una mejor forma de representar un numero complejo (con una struct quizas??)
-	nro_imaginario_t seed; //queda string hasta que piense una mejor forma de representar un numero complejo (con una struct quizas??)
+	nro_imaginario_t center; 
+	nro_imaginario_t seed; 
 } parameters_t;
 
 static struct option long_options[] =

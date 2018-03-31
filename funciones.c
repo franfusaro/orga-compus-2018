@@ -66,6 +66,9 @@ int stringContainsChar(char* string, const char* ch)
 {
 	size_t len = strlen(string);
 	size_t spn = strcspn(string, ch);
+	if (spn == 0){
+		return 1; //si el len del segundo es 0 quiere decir que contiene todos los chars.
+	}
 	if (len != spn){
 		return 0; //si son diferentes quiere decir que lo contiene
 	}
@@ -73,20 +76,24 @@ int stringContainsChar(char* string, const char* ch)
 }
 
 int parseNroImg(char* nro, nro_imaginario_t* nro_img){
-    char* nroImg = strdup(nro);
-	char** nroSpliteado;
-	if (stringContainsChar(nroImg, "+") == 0)
-	{
-		nroSpliteado = str_split(nroImg,'+');
+    //char* nroImg = strdup(nro);
+	if (!strcmp(nro, "") || nro == NULL){
+		return ERR_VACIO;
 	}
-	else if (stringContainsChar(nroImg, "-") == 0)
-	{
-		nroSpliteado = str_split(nroImg,'-');
+	
+	long double real, img;
+    char i;
+
+	if (stringContainsChar(nro, "0123456789.+-") == -1 || stringContainsChar(nro," ") == 0){
+		return ERR_INVALID_CHARS;
 	}
-	if (nroSpliteado){
-		nro_img->real = strtold(*(nroSpliteado), NULL);
-		nro_img->img = strtold(*(nroSpliteado + 1), NULL);
-	}
+
+    if (sscanf(nro, "%Lf%Lf%c", &real, &img, &i) != 3 || i != 'i'){
+        return ERR_INVALID_FORMAT;
+    }
+
+    nro_img->real = real;
+    nro_img->img = img;
 	return 0;
 }
 

@@ -27,8 +27,21 @@ void test_chars_validos_nro_imaginario()
 	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario:" ANSI_COLOR_WHITE "3+3i\n");
 	assertPropio(result == 0, "El parseo devolvió negativo");
 	assertPropio(nroImg.real == 3, "La parte real debe ser 3");
+	assertPropio(nroImg.img == 3, "La parte imaginaria debe ser 3");
+	printf(ANSI_COLOR_GREEN "Test OK\n");
+			
+	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "+3+3i\n");
+	result = parseNroImg("+3+3i",&nroImg);
 	assertPropio(nroImg.real == 3, "La parte real debe ser 3");
 	assertPropio(nroImg.img == 3, "La parte imaginaria debe ser 3");
+	assertPropio(result == 0, "El parseo devolvió negativo.");
+	printf(ANSI_COLOR_GREEN "Test OK\n");
+	
+	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "+3-3i\n");
+	result = parseNroImg("+3-3i",&nroImg);
+	assertPropio(result == 0, "El parseo devolvió negativo");
+	assertPropio(nroImg.real == 3, "La parte real debe ser 3");
+	assertPropio(nroImg.img == -3, "La parte imaginaria debe ser -3");
 	printf(ANSI_COLOR_GREEN "Test OK\n");
 	
 	result = parseNroImg("2-5i",&nroImg);
@@ -57,11 +70,11 @@ void test_chars_validos_nro_imaginario()
 	/* TESTEAMOS LOS CASOS BASE DE COMBINACIONES DE + Y - CON NUMEROS DECIMALES */
 	printf(ANSI_COLOR_YELLOW "START TESTS: String a numero imaginario con decimales.\n");
 	
-	result = parseNroImg("9.25+0.8i",&nroImg);
-	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "9.25+0.8i\n");
+	result = parseNroImg("9.25+0.75i",&nroImg);
+	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "9.25+0.75i\n");
 	assertPropio(result == 0, "El parseo devolvió negativo");
 	assertPropio(nroImg.real == 9.25, "La parte real debe ser 9.25");
-	assertPropio(nroImg.img == 0.8, "La parte imaginaria debe ser 0.8");
+	assertPropio(nroImg.img == 0.75, "La parte imaginaria debe ser 0.75");
 	printf(ANSI_COLOR_GREEN "Test OK\n");
 	
 	result = parseNroImg("2.5-7.5i",&nroImg);
@@ -93,35 +106,32 @@ void test_chars_validos_nro_imaginario()
 	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "'' (Vacio)\n");
 	result = parseNroImg("",&nroImg);
 	assertPropio(result == ERR_VACIO, "Deberia devolver la constante ERR_VACIO");
+	printf(ANSI_COLOR_GREEN "Test OK\n");
 	
 	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "'cualquiera'\n");
-	result = parseNroImg("cualquiera",&nroImg);
+	result = parseNroImg("ERR_INVALID_CHARS",&nroImg);
 	assertPropio(result == ERR_INVALID_CHARS, "Deberia devolver la constante ERR_INVALID_CHARS");
+	printf(ANSI_COLOR_GREEN "Test OK\n");
 	
 	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "3 +3i\n");
 	result = parseNroImg("3 +3i",&nroImg);
 	assertPropio(result == ERR_INVALID_CHARS, "Deberia devolver la constante ERR_INVALID_CHARS.");
+	printf(ANSI_COLOR_GREEN "Test OK\n");
 	
 	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "3i+3\n");
 	result = parseNroImg("3i+3",&nroImg);
 	assertPropio(result == ERR_INVALID_FORMAT, "Deberia devolver la constante ERR_INVALID_FORMAT.");
-	
-	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "+3+3i\n");
-	result = parseNroImg("+3+3i",&nroImg);
-	assertPropio(result == ERR_INVALID_FORMAT, "Deberia devolver la constante ERR_INVALID_FORMAT.");
-	
-	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "+3-3i\n");
-	result = parseNroImg("+3+3i",&nroImg);
-	assertPropio(result == ERR_INVALID_FORMAT, "Deberia devolver la constante ERR_INVALID_FORMAT.");
-	
+	printf(ANSI_COLOR_GREEN "Test OK\n");
 	
 	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "0i\n");
 	result = parseNroImg("0i",&nroImg);
-	assertPropio(result == ERR_NO_REAL_PART, "Deberia devolver la constante ERR_NO_REAL_PART.");
+	assertPropio(result == ERR_INVALID_FORMAT, "Deberia devolver la constante ERR_INVALID_FORMAT.");
+	printf(ANSI_COLOR_GREEN "Test OK\n");
 	
 	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "0\n");
 	result = parseNroImg("0",&nroImg);
-	assertPropio(result == ERR_NO_IMG_PART, "Deberia devolver la constante ERR_NO_IMG_PART.");
+	assertPropio(result == ERR_INVALID_FORMAT, "Deberia devolver la constante ERR_INVALID_FORMAT.");
+	printf(ANSI_COLOR_GREEN "Test OK\n");
 	
 	printf(ANSI_COLOR_YELLOW "END TESTS: Strings inválidos. STATUS: " ANSI_COLOR_GREEN "OK\n");
 }
@@ -244,7 +254,7 @@ void assertPropio(int condition, char* msg)
 }
 
 int main(int argc, char *argv[]){
-	//test_chars_validos_nro_imaginario();
+	test_chars_validos_nro_imaginario();
 	test_resolucion();
 	test_archivo_salida();
     test_ancho_alto();
