@@ -18,7 +18,8 @@ typedef struct receivedParameters {
 	float width;
 	float height;
 	nro_imaginario_t center; 
-	nro_imaginario_t seed; 
+	nro_imaginario_t seed;
+    color_t color;
 } parameters_t;
 
 static struct option long_options[] =
@@ -41,6 +42,7 @@ void showHelp();
 void showError(int);
 void returnValidation(int);
 void julia(parameters_t);
+void writeHeader(parameters_t);
 parameters_t getParameters(int argc, char **argv);
 
 parameters_t getParameters(int argc, char **argv){
@@ -50,14 +52,17 @@ parameters_t getParameters(int argc, char **argv){
     //valores por defecto
     receivedParameters.output = NULL;
     receivedParameters.path_to_output = "output.pgm";
-    receivedParameters.resolution.width = 640; 
-    receivedParameters.resolution.height = 480;
+    receivedParameters.resolution.width = 200;
+    receivedParameters.resolution.height = 100;
     receivedParameters.center.real = 0; 
     receivedParameters.center.img = 0;
     receivedParameters.width = 2;
     receivedParameters.height = 2; 
     receivedParameters.seed.real = -0.726895347709114071439;
-    receivedParameters.seed.img = 0.188887129043845954792; 
+    receivedParameters.seed.img = 0.188887129043845954792;
+    receivedParameters.color.max = 255;
+    receivedParameters.color.min = 0;
+
     //fin valores por defecto
     
     // loop over all of the options
@@ -164,6 +169,10 @@ void showError(int errorCode) {
 }
 
 void julia(parameters_t parameters){
+
+    parameters.output = fopen(parameters.path_to_output, "w");
+    writeHeader(parameters);
+
 	//Calculo los incrementos en alto y ancho
 	float stepWidth = parameters.width / parameters.resolution.width;
 	float stepHeight = parameters.height / parameters.resolution.height;
@@ -172,8 +181,9 @@ void julia(parameters_t parameters){
 	nro_imaginario_t startPixel;
 	startPixel.real = parameters.center.real - (parameters.width/2);
 	startPixel.img = parameters.center.img - (parameters.height/2);
-	int N = 255;
-	int brillo = 0;
+	int N = parameters.color.max;
+	int brillo = parameters.color.min;
+
 	//para cada pixel $p {
 	for (int i = 0; i < parameters.resolution.height; i++)
 	{
@@ -197,9 +207,15 @@ void julia(parameters_t parameters){
 				currentPixel.img = currentPixel.img + parameters.seed.img;
 			}
 			//dibujar el punto p con brillo $i;
-			printf("%d ",brillo); 
+			fprintf(parameters.output,"%d ",brillo);
 		}
+        fprintf(parameters.output,"%s","\n");
 	}
+
+    if (fflush(parameters.output) != 0) {
+        fprintf(stderr, "cannot flush output file.\n");
+        exit(1);
+    }
 	
 //    para cada pixel $p {
 //        $f = complejo asociado a $p;
@@ -211,6 +227,14 @@ void julia(parameters_t parameters){
 //        dibujar el punto p con brillo $i;
 //    }
 
+}
+
+void writeHeader(parameters_t parameters){
+    //PGM Header
+    fprintf(parameters.output,"P2 \n");
+    fprintf(parameters.output,"# %s \n",parameters.path_to_output);
+    fprintf(parameters.output,"%u %u \n",(unsigned)parameters.resolution.width,(unsigned)parameters.resolution.height);
+    fprintf(parameters.output,"%u \n",(unsigned)parameters.color.max);
 }
 
 int main(int argc, char *argv[]){
