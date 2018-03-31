@@ -66,7 +66,7 @@ parameters_t getParameters(int argc, char **argv){
     //fin valores por defecto
     
     // loop over all of the options
-    while ((ch = getopt_long(argc, argv, "hVi:o:I:O:", long_options, NULL)) != -1) {
+    while ((ch = getopt_long(argc, argv, "hVo:c:r:H:w:s:", long_options, NULL)) != -1) {
         // check to see if a single character or long option came through
         switch (ch){
             case 'o':
@@ -90,6 +90,7 @@ parameters_t getParameters(int argc, char **argv){
                 returnValidation(setValue(optarg,&receivedParameters.height)); //No se si deberia validarse tambien que ancho y alto sean mas chicos que los valores de la resolucion?
             case 'w':
                 returnValidation(setValue(optarg,&receivedParameters.width));
+		printf("%f",receivedParameters.width);
                 break;
             case 's':
 				returnValidation(parseNroImg(optarg,&receivedParameters.seed));
@@ -185,13 +186,13 @@ void julia(parameters_t parameters){
 	int brillo = parameters.color.min;
 
 	//para cada pixel $p {
-	for (int i = 0; i < parameters.resolution.width; i++)
+	for (int i = 0; i < parameters.resolution.height; i++)
 	{
-		for (int j = 0; j < parameters.resolution.height; j++)
+		for (int j = 0; j < parameters.resolution.width; j++)
 		{
 			//$f = complejo asociado a $p;
-			currentPixel.real = startPixel.real + (stepWidth * i);
-			currentPixel.img = startPixel.img + (stepHeight * j);
+			currentPixel.real = startPixel.real + (stepWidth * j);
+			currentPixel.img = startPixel.img + (stepHeight * i);
 			//for ($i = 0; $i < $N - 1; ++$i) {
 			for (brillo = 0; brillo < N; ++brillo) {
                 //if (abs($f) > 2)
@@ -247,8 +248,6 @@ int main(int argc, char *argv[]){
 	parameters_t receivedParameters = getParameters(argc,argv);
 	printf("RESOLUTION WIDTH: %d\n", receivedParameters.resolution.width);
 	printf("RESOLUTION HEIGHT: %d\n", receivedParameters.resolution.height);
-	//printf("SEED: %s\n", receivedParameters.seed);
-	//printf("CENTER: %s\n",receivedParameters.center);
 	printf("SEED: %.16Lf\n", receivedParameters.seed.real);
 	printf("SEED: %.16Lf\n", receivedParameters.seed.img);
 	printf("WIDTH: %f\n", receivedParameters.width);

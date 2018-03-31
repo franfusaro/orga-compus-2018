@@ -144,7 +144,7 @@ int checkForBadCharacters(char* path){
 int setValue(char* strvalue, float* value_to_set){
     float value;
     if (sscanf(strvalue,"%f",&value) != 1 || value < 0) return ERR_INVALID_PARAMETER;
-    value_to_set = &value;
+    *value_to_set = value;
     return 0;
 }
 
