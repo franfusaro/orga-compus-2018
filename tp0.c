@@ -90,7 +90,6 @@ parameters_t getParameters(int argc, char **argv){
                 returnValidation(setValue(optarg,&receivedParameters.height)); //No se si deberia validarse tambien que ancho y alto sean mas chicos que los valores de la resolucion?
             case 'w':
                 returnValidation(setValue(optarg,&receivedParameters.width));
-		printf("%f",receivedParameters.width);
                 break;
             case 's':
 				returnValidation(parseNroImg(optarg,&receivedParameters.seed));
@@ -181,18 +180,19 @@ void julia(parameters_t parameters){
 	//Calculo el primer pixel segun el centro
 	nro_imaginario_t startPixel;
 	startPixel.real = parameters.center.real - (parameters.width/2);
-	startPixel.img = parameters.center.img - (parameters.height/2);
+	startPixel.img = parameters.center.img + (parameters.height/2);
 	int N = parameters.color.max;
 	int brillo = parameters.color.min;
-
+	int i;
+	int j;
 	//para cada pixel $p {
-	for (int i = 0; i < parameters.resolution.height; i++)
+	for (i = 0; i < parameters.resolution.height; i++)
 	{
-		for (int j = 0; j < parameters.resolution.width; j++)
+		for (j = 0; j < parameters.resolution.width; j++)
 		{
 			//$f = complejo asociado a $p;
 			currentPixel.real = startPixel.real + (stepWidth * j);
-			currentPixel.img = startPixel.img + (stepHeight * i);
+			currentPixel.img = startPixel.img - (stepHeight * i);
 			//for ($i = 0; $i < $N - 1; ++$i) {
 			for (brillo = 0; brillo < N; ++brillo) {
                 //if (abs($f) > 2)
@@ -218,18 +218,6 @@ void julia(parameters_t parameters){
         fprintf(stderr, "Unable to close output file.\n");
         exit(1);
     }
-
-	
-//    para cada pixel $p {
-//        $f = complejo asociado a $p;
-//        for ($i = 0; $i < $N - 1; ++$i) {
-//            if (abs($f) > 2)
-//                break;
-//            $f = $f * $f + $s;
-//        }
-//        dibujar el punto p con brillo $i;
-//    }
-
 }
 
 void writeHeader(parameters_t parameters){
@@ -244,15 +232,8 @@ void writeHeader(parameters_t parameters){
 }
 
 int main(int argc, char *argv[]){
-	int result = 0;
-	parameters_t receivedParameters = getParameters(argc,argv);
-	printf("RESOLUTION WIDTH: %d\n", receivedParameters.resolution.width);
-	printf("RESOLUTION HEIGHT: %d\n", receivedParameters.resolution.height);
-	printf("SEED: %.16Lf\n", receivedParameters.seed.real);
-	printf("SEED: %.16Lf\n", receivedParameters.seed.img);
-	printf("WIDTH: %f\n", receivedParameters.width);
-	printf("HEIGHT: %f\n", receivedParameters.height);
-    printf("OUTPUT PATH: %s\n", receivedParameters.path_to_output);
+    int result = 0;
+    parameters_t receivedParameters = getParameters(argc,argv);
     julia(receivedParameters);
     return result;
 }
