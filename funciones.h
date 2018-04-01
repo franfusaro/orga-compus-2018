@@ -31,6 +31,7 @@ int parseResolution(char* resolstr, resolution_t* resolution);
 int checkForOutputPath(char* path, char** path_to_save);
 char* getFileExtension(char *path);
 int checkForBadCharacters(char* path);
-int setValue(char* strvalue, float* value_to_set);
+int setWidth(char* strvalue, float* value_to_set, float value_to_check);
+int setHeight(char* strvalue, float* value_to_set, float value_to_check);
 long double getNroImgAbs(nro_imaginario_t nro);
 nro_imaginario_t getNroImgSq(nro_imaginario_t nro);

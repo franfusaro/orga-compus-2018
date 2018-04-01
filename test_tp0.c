@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "funciones.h"
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
@@ -21,8 +22,10 @@ void test_chars_validos_nro_imaginario()
 	/* TESTS PARA CONVERTIR STRING A NUMERO IMAGINARIO */
 	
 	/* PRIMERO TESTEAMOS LOS CASOS BASE DE COMBINACIONES DE + Y - CON NUMEROS ENTEROS */
+    printf(ANSI_COLOR_WHITE "=============================================================\n");
 	printf(ANSI_COLOR_YELLOW "START TESTS: String a numero imaginario con enteros.\n");
-	
+    printf(ANSI_COLOR_WHITE "=============================================================\n");
+
 	result = parseNroImg("3+3i",&nroImg);
 	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario:" ANSI_COLOR_WHITE "3+3i\n");
 	assertPropio(result == 0, "El parseo devolvió negativo");
@@ -68,8 +71,10 @@ void test_chars_validos_nro_imaginario()
 	printf(ANSI_COLOR_YELLOW "END TESTS: string a numero imaginario con entero. STATUS: " ANSI_COLOR_GREEN "OK\n");
 	
 	/* TESTEAMOS LOS CASOS BASE DE COMBINACIONES DE + Y - CON NUMEROS DECIMALES */
+    printf(ANSI_COLOR_WHITE "=============================================================\n");
 	printf(ANSI_COLOR_YELLOW "START TESTS: String a numero imaginario con decimales.\n");
-	
+    printf(ANSI_COLOR_WHITE "=============================================================\n");
+
 	result = parseNroImg("9.25+0.75i",&nroImg);
 	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "9.25+0.75i\n");
 	assertPropio(result == 0, "El parseo devolvió negativo");
@@ -101,7 +106,9 @@ void test_chars_validos_nro_imaginario()
 	printf(ANSI_COLOR_YELLOW "END TESTS: string a numero imaginario con decimales. STATUS: " ANSI_COLOR_GREEN "OK\n");
 	
 	/* TESTEAMOS LOS CASOS DE STRINGS INVALIDOS */
+    printf(ANSI_COLOR_WHITE "=============================================================\n");
 	printf(ANSI_COLOR_YELLOW "START TESTS: Strings inválidos.\n");
+    printf(ANSI_COLOR_WHITE "=============================================================\n");
 	
 	printf(ANSI_COLOR_YELLOW "Parseando nro imaginario: " ANSI_COLOR_WHITE "'' (Vacio)\n");
 	result = parseNroImg("",&nroImg);
@@ -137,7 +144,9 @@ void test_chars_validos_nro_imaginario()
 }
 
 void test_resolucion(){
+    printf(ANSI_COLOR_WHITE "=============================================================\n");
 	printf(ANSI_COLOR_YELLOW "START TESTS: RESOLUCION.\n");
+    printf(ANSI_COLOR_WHITE "=============================================================\n");
     resolution_t resol;
     int result;
 
@@ -178,7 +187,9 @@ void test_resolucion(){
 }
 
 void test_archivo_salida(){
+    printf(ANSI_COLOR_WHITE "=============================================================\n");
     printf(ANSI_COLOR_YELLOW "START TESTS: ARCHIVO SALIDA.\n");
+    printf(ANSI_COLOR_WHITE "=============================================================\n");
     int result;
 	char* path = NULL;
 
@@ -209,38 +220,82 @@ void test_archivo_salida(){
 }
 
 void test_ancho_alto(){
+    printf(ANSI_COLOR_WHITE "=============================================================\n");
     printf(ANSI_COLOR_YELLOW "START TESTS: VALIDACION DE ANCHO/ALTO.\n");
+    printf(ANSI_COLOR_WHITE "=============================================================\n");
     int result;
     float value;
+    int res_width = 600;
+    int res_height = 400;
 
-    result = setValue("",&value);
-    printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "\n");
+    result = setWidth("",&value,res_width);
+    printf(ANSI_COLOR_YELLOW "Validando ancho:" ANSI_COLOR_WHITE "\n");
     assertPropio(result == ERR_INVALID_PARAMETER, "No se ingreso ningun valor");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
-    result = setValue("2",&value);
-    printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "2\n");
+    result = setHeight("",&value,res_height);
+    printf(ANSI_COLOR_YELLOW "Validando alto:" ANSI_COLOR_WHITE "\n");
+    assertPropio(result == ERR_INVALID_PARAMETER, "No se ingreso ningun valor");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = setWidth("2",&value,res_width);
+    printf(ANSI_COLOR_YELLOW "Validando ancho:" ANSI_COLOR_WHITE "2\n");
     assertPropio(result == 0, "El parseo fue correcto");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
-    result = setValue("0.0005",&value);
-    printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "0.0005\n");
+    result = setHeight("2",&value,res_height);
+    printf(ANSI_COLOR_YELLOW "Validando alto:" ANSI_COLOR_WHITE "2\n");
     assertPropio(result == 0, "El parseo fue correcto");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
-    result = setValue("aaaaaa",&value);
-    printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "aaaaaa\n");
+    result = setWidth("0.0005",&value,res_width);
+    printf(ANSI_COLOR_YELLOW "Validando ancho:" ANSI_COLOR_WHITE "0.0005\n");
+    assertPropio(result == 0, "El parseo fue correcto");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = setHeight("0.0005",&value,res_height);
+    printf(ANSI_COLOR_YELLOW "Validando alto:" ANSI_COLOR_WHITE "0.0005\n");
+    assertPropio(result == 0, "El parseo fue correcto");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = setWidth("aaaaaa",&value,res_width);
+    printf(ANSI_COLOR_YELLOW "Validando ancho:" ANSI_COLOR_WHITE "aaaaaa\n");
     assertPropio(result == ERR_INVALID_PARAMETER, "Se ingreso un valor alfabetico");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
-    result = setValue("\\00x\\00",&value);
-    printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "\\00x\\00\n");
+    result = setHeight("aaaaaa",&value,res_height);
+    printf(ANSI_COLOR_YELLOW "Validando alto:" ANSI_COLOR_WHITE "aaaaaa\n");
+    assertPropio(result == ERR_INVALID_PARAMETER, "Se ingreso un valor alfabetico");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = setWidth("\\00x\\00",&value,res_width);
+    printf(ANSI_COLOR_YELLOW "Validando ancho:" ANSI_COLOR_WHITE "\\00x\\00\n");
     assertPropio(result == ERR_INVALID_PARAMETER, "Se ingreso un caracter invalido");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
-    result = setValue("****",&value);
-    printf(ANSI_COLOR_YELLOW "Validando:" ANSI_COLOR_WHITE "****\n");
+    result = setHeight("\\00x\\00",&value,res_height);
+    printf(ANSI_COLOR_YELLOW "Validando alto:" ANSI_COLOR_WHITE "\\00x\\00\n");
     assertPropio(result == ERR_INVALID_PARAMETER, "Se ingreso un caracter invalido");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = setWidth("****",&value,res_width);
+    printf(ANSI_COLOR_YELLOW "Validando ancho:" ANSI_COLOR_WHITE "****\n");
+    assertPropio(result == ERR_INVALID_PARAMETER, "Se ingreso un caracter invalido");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = setHeight("****",&value,res_height);
+    printf(ANSI_COLOR_YELLOW "Validando alto:" ANSI_COLOR_WHITE "****\n");
+    assertPropio(result == ERR_INVALID_PARAMETER, "Se ingreso un caracter invalido");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = setWidth("700",&value,res_width);
+    printf(ANSI_COLOR_YELLOW "Validando ancho:" ANSI_COLOR_WHITE "700\n");
+    assertPropio(result == ERR_INVALID_PARAMETER, "Se ingreso un ancho mayor que el ancho de la resolucion");
+    printf(ANSI_COLOR_GREEN "Test OK\n");
+
+    result = setHeight("500",&value,res_height);
+    printf(ANSI_COLOR_YELLOW "Validando alto:" ANSI_COLOR_WHITE "500\n");
+    assertPropio(result == ERR_INVALID_PARAMETER, "Se ingreso un alto mayor que el alto de la resolucion");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 }
 

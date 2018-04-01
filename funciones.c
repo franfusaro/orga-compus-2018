@@ -146,9 +146,16 @@ int checkForBadCharacters(char* path){
     return 0;
 }
 
-int setValue(char* strvalue, float* value_to_set){
+int setHeight(char* height, float* value_to_set, float resolution_height){
     float value;
-    if (sscanf(strvalue,"%f",&value) != 1 || value < 0) return ERR_INVALID_PARAMETER;
+    if (sscanf(height,"%f",&value) != 1 || value < 0 || value >= resolution_height) return ERR_INVALID_PARAMETER;
+    *value_to_set = value;
+    return 0;
+}
+
+int setWidth(char* width, float* value_to_set, float resolution_width){
+    float value;
+    if (sscanf(width,"%f",&value) != 1 || value < 0 || value >= resolution_width) return ERR_INVALID_PARAMETER;
     *value_to_set = value;
     return 0;
 }

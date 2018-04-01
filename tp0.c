@@ -86,9 +86,9 @@ parameters_t getParameters(int argc, char **argv){
                 exit(0);
                 break;
             case 'H':
-                returnValidation(setValue(optarg,&receivedParameters.height)); //No se si deberia validarse tambien que ancho y alto sean mas chicos que los valores de la resolucion?
+                returnValidation(setHeight(optarg,&receivedParameters.height,receivedParameters.resolution.height));
             case 'w':
-                returnValidation(setValue(optarg,&receivedParameters.width));
+                returnValidation(setWidth(optarg,&receivedParameters.width,receivedParameters.resolution.width));
                 break;
             case 's':
 				returnValidation(parseNroImg(optarg,&receivedParameters.seed));
