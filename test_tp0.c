@@ -180,30 +180,29 @@ void test_resolucion(){
 void test_archivo_salida(){
     printf(ANSI_COLOR_YELLOW "START TESTS: ARCHIVO SALIDA.\n");
     int result;
-    FILE* outputFile = NULL;
 	char* path = NULL;
 
-    result = checkForOutputPath("file.pgm",outputFile,&path);
+    result = checkForOutputPath("file.pgm",&path);
     printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "file.pgm\n");
     assertPropio(result == 0, "El parseo fue correcto");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
-    result = checkForOutputPath("/dir/file.pgm",outputFile,&path);
+    result = checkForOutputPath("/dir/file.pgm",&path);
     printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "/dir/file.pgm\n");
     assertPropio(result == ERR_INVALID_FILE_PATH, "El archivo de salida es invalido");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
-    result = checkForOutputPath(NULL,outputFile,&path);
+    result = checkForOutputPath(NULL,&path);
     printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "NULL\n");
     assertPropio(result == ERR_VACIO, "El archivo de salida es nulo");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
-    result = checkForOutputPath("aa*",outputFile,&path);
+    result = checkForOutputPath("aa*",&path);
     printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "aa*\n");
     assertPropio(result == ERR_INVALID_CHARS, "El archivo de salida tiene caracteres invalidos");
     printf(ANSI_COLOR_GREEN "Test OK\n");
 
-    result = checkForOutputPath("archivo.jpg",outputFile,&path);
+    result = checkForOutputPath("archivo.jpg",&path);
     printf(ANSI_COLOR_YELLOW "Parseando archivo de salida:" ANSI_COLOR_WHITE "archivo.jpg\n");
     assertPropio(result == ERR_INVALID_FILE_TYPE, "El archivo de salida tiene una extension invalida");
     printf(ANSI_COLOR_GREEN "Test OK\n");

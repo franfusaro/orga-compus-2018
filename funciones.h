@@ -28,7 +28,7 @@ char** str_split(char* a_str, const char a_delim);
 int stringContainsChar(char* string, const char* ch);
 int parseNroImg(char* nro, nro_imaginario_t* nro_img);
 int parseResolution(char* resolstr, resolution_t* resolution);
-int checkForOutputPath(char* path, FILE* file, char** path_to_save);
+int checkForOutputPath(char* path, char** path_to_save);
 char* getFileExtension(char *path);
 int checkForBadCharacters(char* path);
 int setValue(char* strvalue, float* value_to_set);

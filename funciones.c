@@ -111,15 +111,20 @@ int parseResolution(char* resolstr, resolution_t* resolution) {
     return 0;
 }
 
-int checkForOutputPath(char* path, FILE* file, char** path_to_save){
+int checkForOutputPath(char* path, char** path_to_save){
     if (path == NULL) return ERR_VACIO; // Chequea que el path no sea nulo
+
+    if (strcmp(path, "-") == 0) {
+        *path_to_save = "stdout";
+        return 0;
+    } // Si el nombre del archivo es "-" se utilizara la salida estandar
 
     if(checkForBadCharacters(path) == -1) return ERR_INVALID_CHARS;
 
+    FILE* file;
     if(strcmp(getFileExtension(path), ".pgm") != 0) return ERR_INVALID_FILE_TYPE;
-
-    if (strcmp(path, "-") == 0) file = stdout; // Si el nombre del archivo es "-" se utilizara la salida estandar
     else if (!(file = fopen(path, "w"))) return ERR_INVALID_FILE_PATH;
+    fclose(file);
 
     *path_to_save = path;
     return 0;
