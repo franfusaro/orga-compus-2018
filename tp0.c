@@ -125,6 +125,7 @@ void showHelp(){
     printf("%s\n", "tp0 Options:");
     printf("%s\n", "-r --resolution  Set bitmap resolution to WxH pixels");
     printf("%s\n", "-c --center      Set the center of the image");
+    printf("%s\n", "-s --seed        Set the seed to generate the image");
     printf("%s\n", "-w --width       Set the width of the region to be spanned");
     printf("%s\n", "-H --height      Set the height of the region to be spanned");
     printf("%s\n", "-o --output      Set path to output file");
