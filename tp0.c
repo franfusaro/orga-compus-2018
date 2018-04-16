@@ -9,10 +9,10 @@
 #include <getopt.h>
 #include <float.h>
 #include <assert.h>
+#include <string.h>
 #include "funciones.h"
 
 typedef struct receivedParameters {
-	FILE* output;
     char* path_to_output;
 	resolution_t resolution;
 	float width;
@@ -42,7 +42,7 @@ void showHelp();
 void showError(int);
 void returnValidation(int);
 void julia(parameters_t);
-void writeHeader(parameters_t);
+void writeHeader(parameters_t,FILE*);
 parameters_t getParameters(int argc, char **argv);
 
 parameters_t getParameters(int argc, char **argv){
@@ -50,7 +50,6 @@ parameters_t getParameters(int argc, char **argv){
     parameters_t receivedParameters;
 
     //valores por defecto
-    receivedParameters.output = NULL;
     receivedParameters.path_to_output = "output.pgm";
     receivedParameters.resolution.width = 640;
     receivedParameters.resolution.height = 480;
@@ -70,7 +69,7 @@ parameters_t getParameters(int argc, char **argv){
         // check to see if a single character or long option came through
         switch (ch){
             case 'o':
-                returnValidation(checkForOutputPath(optarg,receivedParameters.output,&receivedParameters.path_to_output));
+                returnValidation(checkForOutputPath(optarg,&receivedParameters.path_to_output));
                 break;
             case 'c':
                 returnValidation(parseNroImg(optarg,&receivedParameters.center));
@@ -87,9 +86,9 @@ parameters_t getParameters(int argc, char **argv){
                 exit(0);
                 break;
             case 'H':
-                returnValidation(setValue(optarg,&receivedParameters.height)); //No se si deberia validarse tambien que ancho y alto sean mas chicos que los valores de la resolucion?
+                returnValidation(setHeight(optarg,&receivedParameters.height,receivedParameters.resolution.height));
             case 'w':
-                returnValidation(setValue(optarg,&receivedParameters.width));
+                returnValidation(setWidth(optarg,&receivedParameters.width,receivedParameters.resolution.width));
                 break;
             case 's':
 				returnValidation(parseNroImg(optarg,&receivedParameters.seed));
@@ -126,6 +125,7 @@ void showHelp(){
     printf("%s\n", "tp0 Options:");
     printf("%s\n", "-r --resolution  Set bitmap resolution to WxH pixels");
     printf("%s\n", "-c --center      Set the center of the image");
+    printf("%s\n", "-s --seed        Set the seed to generate the image");
     printf("%s\n", "-w --width       Set the width of the region to be spanned");
     printf("%s\n", "-H --height      Set the height of the region to be spanned");
     printf("%s\n", "-o --output      Set path to output file");
@@ -169,9 +169,14 @@ void showError(int errorCode) {
 }
 
 void julia(parameters_t parameters){
+    FILE * output;
 
-    parameters.output = fopen(parameters.path_to_output, "w");
-    writeHeader(parameters);
+    if(strcmp(parameters.path_to_output, "stdout") != 0){ // Abre el archivo y genera el header del archivo si la salida no es la estandar
+        output = fopen(parameters.path_to_output, "w");
+        writeHeader(parameters,output);
+    } else {
+        output = stdout;
+    }
 
 	//Calculo los incrementos en alto y ancho
 	float stepWidth = parameters.width / parameters.resolution.width;
@@ -206,29 +211,32 @@ void julia(parameters_t parameters){
                 currentPixel.img = currentPixel.img + parameters.seed.img;
             }
             //dibujar el punto p con brillo $i;
-            if(fprintf(parameters.output,"%d ",brillo) < 0){
+            if(fprintf(output,"%d ",brillo) < 0){
                 fprintf(stderr, "There was an error while writing to output.\n");
                 exit(1);
             };
 		}
-        fprintf(parameters.output,"\n");
+        fprintf(output,"\n");
 	}
 
-    if (fclose(parameters.output) != 0) {
-        fprintf(stderr, "Unable to close output file.\n");
-        exit(1);
+    if(strcmp(parameters.path_to_output, "stdout") != 0){
+        if (fclose(output) != 0) {
+            fprintf(stderr, "Unable to close output file.\n");
+            exit(1);
+        }
     }
+
 }
 
-void writeHeader(parameters_t parameters){
+void writeHeader(parameters_t parameters,FILE* output){
     // PGM Header - De acuerdo con la especificacion, el header de un archivo PGM debe contener:
     // El "numero magico" P2, el nombre del archivo con un '#' delante, el ancho de la imagen, el alto de la imagen
     // y el color mas oscuro que puede llegar a alcanzar (en este caso, el valor 255)
-    fprintf(parameters.output,"P2\n");
-    fprintf(parameters.output,"# %s\n",parameters.path_to_output);
-    fprintf(parameters.output,"%u\n",(unsigned)parameters.resolution.width);
-    fprintf(parameters.output,"%u\n",(unsigned)parameters.resolution.height);
-    fprintf(parameters.output,"%u\n",(unsigned)parameters.color.max);
+    fprintf(output,"P2\n");
+    fprintf(output,"# %s\n",parameters.path_to_output);
+    fprintf(output,"%u\n",(unsigned)parameters.resolution.width);
+    fprintf(output,"%u\n",(unsigned)parameters.resolution.height);
+    fprintf(output,"%u\n",(unsigned)parameters.color.max);
 }
 
 int main(int argc, char *argv[]){
