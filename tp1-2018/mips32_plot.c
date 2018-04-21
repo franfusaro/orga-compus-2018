@@ -3,39 +3,8 @@
 #include <defs.h>
 #include <param.h>
 
-
-//~ void
-//~ calculo_brillo(float cr, float ci, param_t *parms)
-//~ {
-    //~ /*
-		//~ * Determinamos el nivel de brillo asociado al punto
-		//~ * (cr, ci), usando la fórmula compleja recurrente 
-		//~ * f = f^2 + s.
-		//~ */
-    //~ float zr, zi;
-    //~ float tr, ti;
-    //~ float absz;
-    //~ int c;
-    //~ zr = cr;
-    //~ zi = ci;
-		//~ for (c = 0; c < parms->shades; ++c) {
-			//~ if ((absz = zr*zr + zi*zi) >= 4.0f)
-				//~ break;
-			//~ tr = parms->s_re + zr * zr - zi * zi;
-			//~ ti = parms->s_im + zr * zi * 2.0f;
-
-			//~ zr = tr;
-			//~ zi = ti;
-			//~ }
-
-		//~ if (fprintf(parms->fp, "%u\n", (unsigned)c) < 0) {
-			//~ fprintf(stderr, "i/o error.\n");
-			//~ exit(1);
-		//~ }
-//~ }
-
 void
-mips32_plot(param_t *parms)
+mips32_plot_c(param_t *parms)
 {
 	float cr, ci;
 	float zr, zi;

@@ -25,6 +25,7 @@
 
 static void do_plot(void);
 extern void mips32_plot(param_t *);
+extern void mips32_plot_c(param_t *);
 
 /*
  * Parámetros globales.
@@ -55,9 +56,8 @@ static void do_output(const char *, const char *);
 int
 main(int argc, char * const argv[], char * const envp[])
 {
-  calculo_brillo(8,9);
-	//parse_cmdline(argc, argv);
-	//do_plot();
+	parse_cmdline(argc, argv);
+	do_plot();
 
 	return 0;
 }
@@ -358,6 +358,5 @@ do_plot(void)
         parms.y_res = y_res;
         parms.shades = 256;
         parms.fp = output;
-
-	plot(&parms);
+  plot(&parms);
 }
