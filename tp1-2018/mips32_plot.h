@@ -1,3 +1,3 @@
 #include <param.h>
 
-extern void mips32_plot(param_t *parms);
+extern void calculo_brillo(float cr, float ci);

@@ -55,8 +55,9 @@ static void do_output(const char *, const char *);
 int
 main(int argc, char * const argv[], char * const envp[])
 {
-	parse_cmdline(argc, argv);
-	do_plot();
+  calculo_brillo(8,9);
+	//parse_cmdline(argc, argv);
+	//do_plot();
 
 	return 0;
 }
