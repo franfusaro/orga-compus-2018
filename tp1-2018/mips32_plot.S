@@ -153,10 +153,10 @@ for_loops:
 
     ## Save registers
 
-    s.s $f0, UL_IM(t0) ## loads UL_IM into $f0
-    s.s $f2, UL_RE(t0) ## loads UL_RE into $f2
-    s.s $f4, D_IM(t0)  ## loads D_IM into $f4
-    s.s $f6, D_RE(t0)  ## loads D_RE into $f6
+    s.s $f20, UL_IM(t0) ## loads UL_IM into $f20
+    s.s $f22, UL_RE(t0) ## loads UL_RE into $f22
+    s.s $f24, D_IM(t0)  ## loads D_IM into $f24
+    s.s $f26, D_RE(t0)  ## loads D_RE into $f26
 
     sw t1, Y_RES(t0)   ## loads Y_RES into t1
     sw t2, X_RES(t0)   ## loads X_RES into t2
