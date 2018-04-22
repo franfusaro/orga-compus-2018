@@ -30,7 +30,34 @@
 ## END SECTION ##
 #################
 
+###############################
+## SECTION DEFINES for_loops ##
+###############################
 
+#define FORLOOPS_SFSIZE 
+
+# SRA
+#define FORLOOPS_RA 
+#define FORLOOPS_FP 
+#define FORLOOPS_GP 
+
+# LA
+
+#define FORLOOPS_CR 
+#define FORLOOPS_CI 
+#define FORLOOPS_ZR 
+#define FORLOOPS_ZI 
+#define FORLOOPS_X 
+#define FORLOOPS_Y
+
+# ABA
+#define FORLOOPS_ARG0 
+#define FORLOOPS_ARG1 
+#define FORLOOPS_ARG2 
+
+#################
+## END SECTION ##
+#################
 
 ####################################
 ## SECTION DEFINES calculo_brillo ##
@@ -85,7 +112,7 @@ mips32_plot:
     li.s $f12, 1.0
     li.s $f14, 2.0
     move a0, a0
-    jal calculo_brillo
+    jal for_loops
 
 end_mips32_plot:  
     move    sp, $fp                  ## move sp
@@ -97,9 +124,82 @@ end_mips32_plot:
 
     .end    mips32_plot
 
+########################
+## FUNCION CICLOS FOR ##
+########################
 
+    .text
+    .abicalls
+    .align  2
+    .globl  for_loops
+    .ent    for_loops
 
+for_loops:
+    .frame  $fp, FORLOOPS_SFSIZE, ra
+    
+    .set    noreorder
+    .cpload t9
+    .set    reorder
+    
+    ## Create Stack Frame
+    subu    sp, sp, FORLOOPS_SFSIZE ## Moving sp pointer
+    
+    sw      ra, FORLOOPS_RA(sp)     ## Save ra in the Stack
+    sw      $fp, FORLOOPS_FP(sp)    ## Save fp in the Stack
+    
+    .cprestore FORLOOPS_GP          
+    
+    move    $fp, sp               ## $fp <- sp    
 
+    ## Load registers
+    lw t0, PARAMS($fp) ## Loads struct params into t0
+
+    l.s $f0, UL_IM(t0) ## loads UL_IM into $f0
+    l.s $f2, UL_RE(t0) ## loads UL_RE into $f2
+    l.s $f4, D_IM(t0)  ## loads D_IM into $f4
+    l.s $f6, D_RE(t0)  ## loads D_RE into $f6
+
+    lw t1, Y_RES(t0)   ## loads Y_RES into t1
+    lw t2, X_RES(t0)   ## loads X_RES into t2
+
+    add t3, zero, zero ## init y = 0
+    add t4, zero, zero ## init x = 0
+
+    ## Looping through y coordinate
+for_y: 
+    s.s $f8, D_IM(t0)  ## saves D_IM into f8; f8 = cr
+
+    blt t3, t1, for_x  ## if (y < params->y_res) loop through x
+    b end_for_y        ## else end looping through y
+
+for_x:
+    sw  zero,20($fp)
+    l.s $f12,20($fp)
+    l.s $f14,20($fp)
+    add.s $f12,$f12,$f8   # $f12 = zr; assigns cr into zr
+    add.s $f14,$f14,$f10   # $f14 = zi; assigns ci into zi
+
+    blt t4, t2, call_calcular_brillo
+    b end_for_x         
+
+end_for_x:
+    li t4,0            ## initializes x = 0 to loop again  
+    addi t3,t3,1       # increment y
+    sub $f8,$f8,$f8    # ci -= ci  
+
+end_for_y:             ## returns to mips32_plot
+    lw  gp,FORLOOPS_GP(sp)
+    lw  $fp,FORLOOPS_FP(sp)
+    lw  ra,FORLOOPS_RA(sp)
+    addu sp,sp,FORLOOPS_SFSIZE
+    jr  ra
+
+call_calcular_brillo:
+    jal calculo_brillo
+
+.data
+.align 2
+buffer: .space 32
 
 
 ############################
@@ -197,6 +297,10 @@ iend:
     jr      ra    
 
 end_calculo_brillo:
+    ## aca deberia ir el incremento de x y de cr
+    # addi t6,t6,1          ## increment x
+    # add.s $f20,$f20,$f20 ## cr += cr
+
     move    sp, $fp                  ## move sp
     lw      gp, BRILLO_GP(sp)        ## load gp
     lw      $fp, BRILLO_FP(sp)       ## load fp
