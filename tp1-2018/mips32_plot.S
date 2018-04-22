@@ -34,26 +34,26 @@
 ## SECTION DEFINES for_loops ##
 ###############################
 
-#define FORLOOPS_SFSIZE 
+#define FORLOOPS_SFSIZE 56
 
 # SRA
-#define FORLOOPS_RA 
-#define FORLOOPS_FP 
-#define FORLOOPS_GP 
+#define FORLOOPS_RA 48
+#define FORLOOPS_FP 44
+#define FORLOOPS_GP 40
 
 # LA
 
-#define FORLOOPS_CR 
-#define FORLOOPS_CI 
-#define FORLOOPS_ZR 
-#define FORLOOPS_ZI 
-#define FORLOOPS_X 
-#define FORLOOPS_Y
+#define FORLOOPS_CR 16
+#define FORLOOPS_CI 20
+#define FORLOOPS_ZR 24
+#define FORLOOPS_ZI 28
+#define FORLOOPS_X 32
+#define FORLOOPS_Y 36
 
 # ABA
-#define FORLOOPS_ARG0 
-#define FORLOOPS_ARG1 
-#define FORLOOPS_ARG2 
+#define FORLOOPS_ARG0 56
+#define FORLOOPS_ARG1 60
+#define FORLOOPS_ARG2 64
 
 #################
 ## END SECTION ##
@@ -151,41 +151,32 @@ for_loops:
     
     move    $fp, sp               ## $fp <- sp    
 
-    ## Load registers
-    lw t0, PARAMS($fp) ## Loads struct params into t0
+    ## Save registers
 
-    l.s $f0, UL_IM(t0) ## loads UL_IM into $f0
-    l.s $f2, UL_RE(t0) ## loads UL_RE into $f2
-    l.s $f4, D_IM(t0)  ## loads D_IM into $f4
-    l.s $f6, D_RE(t0)  ## loads D_RE into $f6
+    s.s $f0, UL_IM(t0) ## loads UL_IM into $f0
+    s.s $f2, UL_RE(t0) ## loads UL_RE into $f2
+    s.s $f4, D_IM(t0)  ## loads D_IM into $f4
+    s.s $f6, D_RE(t0)  ## loads D_RE into $f6
 
-    lw t1, Y_RES(t0)   ## loads Y_RES into t1
-    lw t2, X_RES(t0)   ## loads X_RES into t2
+    sw t1, Y_RES(t0)   ## loads Y_RES into t1
+    sw t2, X_RES(t0)   ## loads X_RES into t2
 
     add t3, zero, zero ## init y = 0
     add t4, zero, zero ## init x = 0
 
     ## Looping through y coordinate
 for_y: 
-    s.s $f8, D_IM(t0)  ## saves D_IM into f8; f8 = cr
-
     blt t3, t1, for_x  ## if (y < params->y_res) loop through x
     b end_for_y        ## else end looping through y
 
 for_x:
-    sw  zero,20($fp)
-    l.s $f12,20($fp)
-    l.s $f14,20($fp)
-    add.s $f12,$f12,$f8   # $f12 = zr; assigns cr into zr
-    add.s $f14,$f14,$f10   # $f14 = zi; assigns ci into zi
-
     blt t4, t2, call_calcular_brillo
     b end_for_x         
 
 end_for_x:
     li t4,0            ## initializes x = 0 to loop again  
     addi t3,t3,1       # increment y
-    sub $f8,$f8,$f8    # ci -= ci  
+    sub.s $f6,$f6,$f6    # ci -= ci  
 
 end_for_y:             ## returns to mips32_plot
     lw  gp,FORLOOPS_GP(sp)
@@ -197,10 +188,7 @@ end_for_y:             ## returns to mips32_plot
 call_calcular_brillo:
     jal calculo_brillo
 
-.data
-.align 2
-buffer: .space 32
-
+    .end for_loops
 
 ############################
 ## FUNCION CALCULO BRILLO ##
