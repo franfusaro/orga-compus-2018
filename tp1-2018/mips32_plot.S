@@ -30,30 +30,22 @@
 ## END SECTION ##
 #################
 
-###############################
-## SECTION DEFINES for_loops ##
-###############################
 
-#define FORLOOPS_SFSIZE 56
+#################################
+## SECTION DEFINES mips32_plot ##
+#################################
+
+# STACK FRAME SIZE
+
+#define PLOT_SFSIZE 32
 
 # SRA
-#define FORLOOPS_RA 48
-#define FORLOOPS_FP 44
-#define FORLOOPS_GP 40
-
-# LA
-
-#define FORLOOPS_CR 16
-#define FORLOOPS_CI 20
-#define FORLOOPS_ZR 24
-#define FORLOOPS_ZI 28
-#define FORLOOPS_X 32
-#define FORLOOPS_Y 36
+#define PLOT_RA 24
+#define PLOT_FP 20
+#define PLOT_GP 16
 
 # ABA
-#define FORLOOPS_ARG0 56
-#define FORLOOPS_ARG1 60
-#define FORLOOPS_ARG2 64
+#define PLOT_ARG0 32
 
 #################
 ## END SECTION ##
@@ -90,6 +82,32 @@
 ## END SECTION ##
 #################
 
+###############################
+## SECTION DEFINES for_loops ##
+###############################
+
+#define FORLOOPS_SFSIZE 56
+
+# SRA
+#define FORLOOPS_RA 48
+#define FORLOOPS_FP 44
+#define FORLOOPS_GP 40
+
+# LA
+
+#define FORLOOPS_CR 16
+#define FORLOOPS_CI 20
+#define FORLOOPS_ZR 24
+#define FORLOOPS_ZI 28
+#define FORLOOPS_X 32
+#define FORLOOPS_Y 36
+
+# ABA
+#define FORLOOPS_ARG0 56
+
+#################
+## END SECTION ##
+#################
 
     .text
     .abicalls
@@ -97,21 +115,21 @@
     .globl  mips32_plot
     .ent    mips32_plot
 mips32_plot:
-    .frame  $fp, 32, ra
+    .frame  $fp, PLOT_SFSIZE, ra
     .set    noreorder
     .cpload t9
     .set    reorder
     
     ## Create Stack Frame
-    subu    sp, sp, 32 ## Moving sp pointer
-    sw      ra, 24(sp)     ## Save ra in the Stack
-    sw      $fp, 20(sp)    ## Save fp in the Stack
-    .cprestore 16          ## sw gp, PLOT_GP(sp) ## Save gp in the Stack
+    subu    sp, sp, PLOT_SFSIZE ## Moving sp pointer
+    sw      ra, PLOT_RA(sp)     ## Save ra in the Stack
+    sw      $fp, PLOT_FP(sp)    ## Save fp in the Stack
+    .cprestore PLOT_GP          ## sw gp, PLOT_GP(sp) ## Save gp in the Stack
     move    $fp, sp        ## $fp <- sp
 
-    li.s $f12, 1.0
-    li.s $f14, 2.0
-    move a0, a0
+    ## ARGS TO ABA
+    sw      a0, PLOT_ARG0($fp)
+    
     jal for_loops
 
 end_mips32_plot:  
@@ -150,7 +168,11 @@ for_loops:
     .cprestore FORLOOPS_GP          
     
     move    $fp, sp               ## $fp <- sp    
-
+    
+    ## ARGS TO ABA
+    sw      a0, FORLOOPS_ARG0($fp)
+    
+    lw      t0, FORLOOPS_ARG0($fp)    ## t0 <- *params
     ## Save registers
 
     s.s $f20, UL_IM(t0) ## loads UL_IM into $f20
