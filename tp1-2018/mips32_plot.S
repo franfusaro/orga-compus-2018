@@ -97,8 +97,8 @@
 
 #define FORLOOPS_CR 16
 #define FORLOOPS_CI 20
-#define FORLOOPS_ZR 24
-#define FORLOOPS_ZI 28
+#define FORLOOPS_XRES 24
+#define FORLOOPS_YRES 28
 #define FORLOOPS_X 32
 #define FORLOOPS_Y 36
 
@@ -171,34 +171,70 @@ for_loops:
     
     ## ARGS TO ABA
     sw      a0, FORLOOPS_ARG0($fp)
-    
     lw      t0, FORLOOPS_ARG0($fp)    ## t0 <- *params
+
     ## Save registers
+    l.s $f4,UL_IM(t0)
+    s.s $f4,FORLOOPS_CI($fp) #ci = UL_IM
 
-    s.s $f20, UL_IM(t0) ## loads UL_IM into $f20
-    s.s $f22, UL_RE(t0) ## loads UL_RE into $f22
-    s.s $f24, D_IM(t0)  ## loads D_IM into $f24
-    s.s $f26, D_RE(t0)  ## loads D_RE into $f26
+    l.s $f4,UL_RE(t0)
+    s.s $f4,FORLOOPS_CR($fp) #cr = UL_RE
 
-    sw t1, Y_RES(t0)   ## loads Y_RES into t1
-    sw t2, X_RES(t0)   ## loads X_RES into t2
+    lw t1, Y_RES(t0)   ## loads Y_RES into t1
+    sw t1, FORLOOPS_YRES($fp)
 
+    lw t2, X_RES(t0)   ## loads X_RES into t2
+    sw t2, FORLOOPS_XRES($fp)
+
+    lw t3, FORLOOPS_Y(t0)
     add t3, zero, zero ## init y = 0
+    sw t3, FORLOOPS_Y($fp)
+
+    lw t4, FORLOOPS_X(t0)
     add t4, zero, zero ## init x = 0
+    sw t4, FORLOOPS_X($fp)
 
     ## Looping through y coordinate
 for_y: 
-    blt t3, t1, for_x  ## if (y < params->y_res) loop through x
-    b end_for_y        ## else end looping through y
+    lw t3,FORLOOPS_Y($fp)
+    lw t1,FORLOOPS_YRES($fp)
 
-for_x:
-    blt t4, t2, call_calcular_brillo
-    b end_for_x         
+    addi t3,t3,1       # increment y
+    sw t3,FORLOOPS_Y($fp)
+
+    blt t1,t3,end_for_y
+
+    lw t0, FORLOOPS_ARG0($fp)
+    l.s $f4,D_IM(t0)
+    l.s $f6,FORLOOPS_CI($fp)
+    sub.s $f6,$f6,$f4    # ci -= D_IM  
+    s.s $f6,FORLOOPS_CI($fp)  
+    
+for_x:    
+    l.s $f12, FORLOOPS_CR($fp)
+    l.s $f14, FORLOOPS_CI($fp)
+    lw a0,FORLOOPS_ARG0($fp)
+
+    jal calculo_brillo
+
+    lw t0, FORLOOPS_ARG0($fp)
+    l.s $f4,D_RE(t0)
+    l.s $f6,FORLOOPS_CR($fp)
+    add.s $f4,$f4,$f6 ## cr += D_RE 
+    s.s $f6,FORLOOPS_CR($fp)
+
+    lw t2,FORLOOPS_X($fp)
+    lw t4,FORLOOPS_XRES($fp)
+
+    addi t2,t2,1  ## increment x  
+    sw t2,FORLOOPS_X($fp)
+
+    blt t2, t4, for_x         
 
 end_for_x:
-    li t4,0            ## initializes x = 0 to loop again  
-    addi t3,t3,1       # increment y
-    sub.s $f6,$f6,$f6    # ci -= ci  
+    li t2,0
+    sw t2,FORLOOPS_X($fp)           ## initializes x = 0 to loop again  
+    b for_y
 
 end_for_y:             ## returns to mips32_plot
     lw  gp,FORLOOPS_GP(sp)
@@ -206,9 +242,6 @@ end_for_y:             ## returns to mips32_plot
     lw  ra,FORLOOPS_RA(sp)
     addu sp,sp,FORLOOPS_SFSIZE
     jr  ra
-
-call_calcular_brillo:
-    jal calculo_brillo
 
     .end for_loops
 
@@ -307,10 +340,6 @@ iend:
     jr      ra    
 
 end_calculo_brillo:
-    ## aca deberia ir el incremento de x y de cr
-    # addi t6,t6,1          ## increment x
-    # add.s $f20,$f20,$f20 ## cr += cr
-
     move    sp, $fp                  ## move sp
     lw      gp, BRILLO_GP(sp)        ## load gp
     lw      $fp, BRILLO_FP(sp)       ## load fp
