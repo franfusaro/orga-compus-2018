@@ -25,6 +25,7 @@
 #define Y_RES 36
 #define SHADES 40
 #define FPI 44
+#define FD 48
 
 #################
 ## END SECTION ##
@@ -104,6 +105,23 @@
 
 # ABA
 #define FORLOOPS_ARG0 56
+
+#################
+## END SECTION ##
+#################
+
+##############################
+## SECTION DEFINES imprimir ##
+##############################
+
+#define IMPRIMIR_SFSIZE    40
+
+#SRA (deberia tener return address? porque entiendo que imprimir es hoja)
+#define IMPRIMIR_RA 32
+#define IMPRIMIR_FP 28
+#define IMPRIMIR_GP 24
+
+#define IMPRIMIR_FD 16
 
 #################
 ## END SECTION ##
@@ -194,10 +212,17 @@ for_loops:
     add t4, zero, zero ## init x = 0
     sw t4, FORLOOPS_X($fp)
 
+    lw t5, FPI(t0) ## loads file into t5
+    lh t5, FD(t5) ## t5 = FD
+    sh t5, FD($fp)
+
     ## Looping through y coordinate
 for_y: 
     lw t3,FORLOOPS_Y($fp)
     lw t1,FORLOOPS_YRES($fp)
+
+    lw t5, FPI(t0) ## loads file into t5
+    lh t5, FD(t5) ## t5 = FD
 
     addi t3,t3,1       # increment y
     sw t3,FORLOOPS_Y($fp)
@@ -209,10 +234,17 @@ for_y:
     l.s $f6,FORLOOPS_CI($fp)
     sub.s $f6,$f6,$f4    # ci -= D_IM  
     s.s $f6,FORLOOPS_CI($fp)  
+
+    lw t5, FPI(t0) ## loads file into t5
+    lh t5, FD(t5) ## t5 = FD
     
 for_x:    
     l.s $f12, FORLOOPS_CR($fp)
     l.s $f14, FORLOOPS_CI($fp)
+
+    lw t5, FPI(t0) ## loads file into t5
+    lh t5, FD(t5) ## t5 = FD
+
     lw a0,FORLOOPS_ARG0($fp)
 
     jal calculo_brillo
@@ -313,6 +345,10 @@ print_brillo:
     li      a0, 1         ## itoa returns addr of buffer in a1 and number of bytes in a2
     li      v0, SYS_write
     syscall
+    ## falta cargar los parametros para pasarle a imprimir 
+    ## (file descriptor del archivo y el pixel a imprimir)
+    #jal imprimir
+
     b end_calculo_brillo
 
 itoa:
@@ -352,3 +388,36 @@ end_calculo_brillo:
 .data
 .align 2
 buffer: .space 32
+
+# imprimir
+.text
+.abicalls
+.align  2  
+.globl imprimir  
+.ent imprimir
+
+imprimir:
+
+    ## Stack frame creation for function
+    .frame  $fp,IMPRIMIR_SFSIZE,ra
+    .set    noreorder
+    .cpload t9
+    .set    reorder
+
+    subu sp,sp,IMPRIMIR_SFSIZE
+    sw  ra,IMPRIMIR_RA(sp)
+    sw  $fp,IMPRIMIR_FP(sp)
+
+    .cprestore IMPRIMIR_GP
+
+    move    $fp,sp
+
+end_imprimir:
+    move    sp, $fp                  ## move sp
+    lw      gp, IMPRIMIR_GP(sp)        ## load gp
+    lw      $fp, IMPRIMIR_FP(sp)       ## load fp
+    lw      ra, IMPRIMIR_RA(sp)        ## load ra
+    addu    sp, sp, IMPRIMIR_SFSIZE    ## Move the sp to callee position
+    jr      ra                       ## jump to return address    
+
+.end    imprimir
