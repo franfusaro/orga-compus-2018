@@ -8,6 +8,8 @@
 ###############
 #define CUATRO 4.0
 #define DOS 2.0
+#define SIZE_HEADER 2
+#define SIZE_SEP 1
 
 ###################################
 ## SECTION DEFINES struct params ##
@@ -25,7 +27,8 @@
 #define Y_RES 36
 #define SHADES 40
 #define FPI 44
-#define FD 48
+
+#define OFFSET_FD 14
 
 #################
 ## END SECTION ##
@@ -51,6 +54,44 @@
 #################
 ## END SECTION ##
 #################
+
+##################################
+## SECTION DEFINES imprimir_sep ##
+##################################
+
+#define SEP_SFSIZE 32
+
+# SRA
+#define SEP_RA 24
+#define SEP_FP 20
+#define SEP_GP 16
+
+# ABA
+#define SEP_ARG0 32
+
+#################
+## END SECTION ##
+#################
+
+##################################
+## SECTION DEFINES imprimir_nro ##
+##################################
+
+#define IMPRIMIR_NRO_SFSIZE 32
+
+# SRA
+#define IMPRIMIR_NRO_RA 24
+#define IMPRIMIR_NRO_FP 20
+#define IMPRIMIR_NRO_GP 16
+
+# ABA
+#define IMPRIMIR_NRO_ARG0 32
+#define IMPRIMIR_NRO_ARG1 36
+
+#################
+## END SECTION ##
+#################
+
 
 ####################################
 ## SECTION DEFINES calculo_brillo ##
@@ -114,14 +155,18 @@
 ## SECTION DEFINES imprimir ##
 ##############################
 
-#define IMPRIMIR_SFSIZE    40
+#define IMPRIMIR_SFSIZE 40
 
-#SRA (deberia tener return address? porque entiendo que imprimir es hoja)
+#SRA
 #define IMPRIMIR_RA 32
 #define IMPRIMIR_FP 28
 #define IMPRIMIR_GP 24
 
 #define IMPRIMIR_FD 16
+
+#define IMPRIMIR_ARG0 36
+#define IMPRIMIR_ARG1 40
+#define IMPRIMIR_ARG2 44
 
 #################
 ## END SECTION ##
@@ -139,26 +184,176 @@ mips32_plot:
     .set    reorder
     
     ## Create Stack Frame
-    subu    sp, sp, PLOT_SFSIZE ## Moving sp pointer
-    sw      ra, PLOT_RA(sp)     ## Save ra in the Stack
-    sw      $fp, PLOT_FP(sp)    ## Save fp in the Stack
-    .cprestore PLOT_GP          ## sw gp, PLOT_GP(sp) ## Save gp in the Stack
-    move    $fp, sp        ## $fp <- sp
+    subu    sp, sp, PLOT_SFSIZE     ## Moving sp pointer
+    sw      ra, PLOT_RA(sp)         ## Save ra in the Stack
+    sw      $fp, PLOT_FP(sp)        ## Save fp in the Stack
+    .cprestore PLOT_GP              ## sw gp, PLOT_GP(sp) ## Save gp in the Stack
+    move    $fp, sp                 ## $fp <- sp
 
     ## ARGS TO ABA
     sw      a0, PLOT_ARG0($fp)
     
-    jal for_loops
+    ## Imprimir cabecera
+    li      a0, 1
+    la      a1, header
+    li      a2, SIZE_HEADER
+    li      v0, SYS_write
+    syscall
+    
+    lw      a0, PLOT_ARG0($fp)
+    jal     imprimir_sep
+
+    lw      a0, PLOT_ARG0($fp)
+    lw      t0, PLOT_ARG0($fp)
+    lw      a1, X_RES(t0)
+    jal     imprimir_numero  
+
+    lw      a0, PLOT_ARG0($fp)
+    jal     imprimir_sep
+
+    lw      a0, PLOT_ARG0($fp)
+    lw      t0, PLOT_ARG0($fp)
+    lw      a1, Y_RES(t0)
+    jal     imprimir_numero  
+
+    lw      a0, PLOT_ARG0($fp)
+    jal     imprimir_sep
+
+    lw      a0, PLOT_ARG0($fp)
+    lw      t0, PLOT_ARG0($fp)
+    lw      a1, SHADES(t0)
+    sub     a1,a1,1
+    jal     imprimir_numero  
+
+    lw      a0, PLOT_ARG0($fp)
+    jal     imprimir_sep
+
+    lw a0, PLOT_ARG0($fp)
+    jal     for_loops
 
 end_mips32_plot:  
-    move    sp, $fp                  ## move sp
-    lw      gp, 16(sp)        ## load gp
-    lw      $fp, 20(sp)       ## load fp
-    lw      ra, 24(sp)        ## load ra
-    addu    sp, sp, 32    ## Move the sp to callee position
-    jr      ra                       ## jump to return address
+    move    sp, $fp                 ## move sp
+    lw      gp, PLOT_GP(sp)         ## load gp
+    lw      $fp, PLOT_FP(sp)        ## load fp
+    lw      ra, PLOT_RA(sp)         ## load ra
+    addu    sp, sp, PLOT_SFSIZE     ## Move the sp to callee position
+    jr      ra                      ## jump to return address
 
     .end    mips32_plot
+
+
+    .text
+    .abicalls
+    .align  2
+    .globl  imprimir_sep
+    .ent    imprimir_sep
+imprimir_sep:
+    .frame  $fp, SEP_SFSIZE, ra
+    
+    .set    noreorder
+    .cpload t9
+    .set    reorder
+    
+    ## Create Stack Frame
+    subu    sp, sp, SEP_SFSIZE ## Moving sp pointer
+    
+    sw      ra, SEP_RA(sp)     ## Save ra in the Stack
+    sw      $fp, SEP_FP(sp)    ## Save fp in the Stack
+    
+    .cprestore SEP_GP          
+    
+    move    $fp, sp               ## $fp <- sp    
+    
+    ## ARGS TO ABA
+    sw      a0, SEP_ARG0($fp)
+
+    lw      t0, SEP_ARG0($fp)    ## t0 <- *params
+    ## Salto de linea   
+    lw      t0, SEP_ARG0($fp)    ## t0 <- *params
+    lw      t0, FPI(t0)                  ## loads file into t0
+    lh      a0, OFFSET_FD(a0)            ## a0 = FD
+    la      a1, sep
+    li      a2,SIZE_SEP
+    li      v0,SYS_write
+    syscall
+
+end_imprimir_sep:
+    lw      gp,SEP_GP(sp)
+    lw      $fp,SEP_FP(sp)
+    lw      ra,SEP_RA(sp)
+    addu    sp,sp,SEP_SFSIZE
+    jr      ra
+
+    .end    imprimir_sep
+
+    .text
+    .abicalls
+    .align  2
+    .globl  imprimir_numero
+    .ent    imprimir_numero
+imprimir_numero:
+    .frame  $fp, IMPRIMIR_NRO_SFSIZE, ra
+    
+    .set    noreorder
+    .cpload t9
+    .set    reorder
+    
+    ## Create Stack Frame
+    subu    sp, sp, IMPRIMIR_NRO_SFSIZE ## Moving sp pointer
+    
+    sw      ra, IMPRIMIR_NRO_RA(sp)     ## Save ra in the Stack
+    sw      $fp, IMPRIMIR_NRO_FP(sp)    ## Save fp in the Stack
+    
+    .cprestore IMPRIMIR_NRO_GP          
+    
+    move    $fp, sp               ## $fp <- sp    
+    
+    ## ARGS TO ABA
+    sw      a0, IMPRIMIR_NRO_ARG0($fp)
+    sw      a1, IMPRIMIR_NRO_ARG1($fp)
+
+itoa:
+    lw      t3, IMPRIMIR_NRO_ARG1($fp)  ## t3 numero a imprimir
+    la      t0, buffer    ## load buf
+    add     t0, t0, 30    ## seek the end
+    sb      zero, 1(t0)   ## null-terminated str
+    li      t5, 1         ## start bytes counter
+    li      t1, '0'
+    sb      t1, (t0)      ## init. with ascii 0
+    li      t2, 10        ## preload 10
+    beq     t3, 0, endi   ## end if arg is 0
+loop:
+    div     t3, t2        ## a /= 10
+    mflo    t3
+    mfhi    t4            ## get remainder
+    add     t4, t4, t1    ## convert to ASCII digit
+    sb      t4, (t0)      ## store it
+    sub     t0, t0, 1     ## dec. buf ptr
+    add     t5, t5, 1     ## bytes counter++
+    bne     t3, 0, loop   ## if not zero, loop
+endi:
+    move    a1, t0                        ## addr of the string
+    move    a2, t5                        ## number of bytes written
+
+    lw      t0, IMPRIMIR_NRO_ARG0($fp)    ## t0 <- *params
+    lw      t0, FPI(t0)                   ## t0 <- *FILE
+    ##lh      a0, OFFSET_FD(a0)           ## a0 <- fd
+    li      a0, 1
+    li      v0,SYS_write
+    syscall
+
+end_imprimir_numero:
+    lw      gp,IMPRIMIR_NRO_GP(sp)
+    lw      $fp,IMPRIMIR_NRO_FP(sp)
+    lw      ra,IMPRIMIR_NRO_RA(sp)
+    addu    sp,sp,IMPRIMIR_NRO_SFSIZE
+    jr      ra
+
+    .end    imprimir_numero
+
+.data
+.align 2
+buffer: .space 32
 
 ########################
 ## FUNCION CICLOS FOR ##
@@ -189,93 +384,85 @@ for_loops:
     
     ## ARGS TO ABA
     sw      a0, FORLOOPS_ARG0($fp)
+
     lw      t0, FORLOOPS_ARG0($fp)    ## t0 <- *params
 
-    ## Save registers
-    l.s $f4,UL_IM(t0)
-    s.s $f4,FORLOOPS_CI($fp) #ci = UL_IM
+    l.s     $f4,UL_IM(t0)
+    s.s     $f4,FORLOOPS_CI($fp) #ci = UL_IM
 
-    l.s $f4,UL_RE(t0)
-    s.s $f4,FORLOOPS_CR($fp) #cr = UL_RE
+    l.s     $f4,UL_RE(t0)
+    s.s     $f4,FORLOOPS_CR($fp) #cr = UL_RE
 
-    lw t1, Y_RES(t0)   ## loads Y_RES into t1
-    sw t1, FORLOOPS_YRES($fp)
+    lw      t1, Y_RES(t0)   ## loads Y_RES into t1
+    sw      t1, FORLOOPS_YRES($fp)
 
-    lw t2, X_RES(t0)   ## loads X_RES into t2
-    sw t2, FORLOOPS_XRES($fp)
+    lw      t2, X_RES(t0)   ## loads X_RES into t2
+    sw      t2, FORLOOPS_XRES($fp)
 
-    lw t3, FORLOOPS_Y(t0)
-    add t3, zero, zero ## init y = 0
-    sw t3, FORLOOPS_Y($fp)
+    lw      t3, FORLOOPS_Y(t0)
+    add     t3, zero, zero ## init y = 0
+    sw      t3, FORLOOPS_Y($fp)
 
-    lw t4, FORLOOPS_X(t0)
-    add t4, zero, zero ## init x = 0
-    sw t4, FORLOOPS_X($fp)
-
-    lw t5, FPI(t0) ## loads file into t5
-    lh t5, FD(t5) ## t5 = FD
-    sh t5, FD($fp)
+    lw      t4, FORLOOPS_X(t0)
+    add     t4, zero, zero ## init x = 0
+    sw      t4, FORLOOPS_X($fp)
 
     ## Looping through y coordinate
 for_y: 
-    lw t3,FORLOOPS_Y($fp)
-    lw t1,FORLOOPS_YRES($fp)
+    lw      t3,FORLOOPS_Y($fp)
+    lw      t1,FORLOOPS_YRES($fp)
 
-    lw t5, FPI(t0) ## loads file into t5
-    lh t5, FD(t5) ## t5 = FD
+    blt     t1,t3,end_for_y
 
-    addi t3,t3,1       # increment y
-    sw t3,FORLOOPS_Y($fp)
+    addi    t3,t3,1       # increment y
+    sw      t3,FORLOOPS_Y($fp)
 
-    blt t1,t3,end_for_y
+    lw      t0, FORLOOPS_ARG0($fp)
+    l.s     $f4,D_IM(t0)
+    l.s     $f6,FORLOOPS_CI($fp)
+    sub.s   $f6,$f6,$f4    # ci -= D_IM  
+    s.s     $f6,FORLOOPS_CI($fp)  
 
-    lw t0, FORLOOPS_ARG0($fp)
-    l.s $f4,D_IM(t0)
-    l.s $f6,FORLOOPS_CI($fp)
-    sub.s $f6,$f6,$f4    # ci -= D_IM  
-    s.s $f6,FORLOOPS_CI($fp)  
-
-    lw t5, FPI(t0) ## loads file into t5
-    lh t5, FD(t5) ## t5 = FD
     
 for_x:    
-    l.s $f12, FORLOOPS_CR($fp)
-    l.s $f14, FORLOOPS_CI($fp)
+    l.s     $f12, FORLOOPS_CR($fp)
+    l.s     $f14, FORLOOPS_CI($fp)
 
-    lw t5, FPI(t0) ## loads file into t5
-    lh t5, FD(t5) ## t5 = FD
 
-    lw a0,FORLOOPS_ARG0($fp)
+    lw      a0,FORLOOPS_ARG0($fp)
 
-    jal calculo_brillo
+    jal     calculo_brillo
 
-    lw t0, FORLOOPS_ARG0($fp)
-    l.s $f4,D_RE(t0)
-    l.s $f6,FORLOOPS_CR($fp)
-    add.s $f4,$f4,$f6 ## cr += D_RE 
-    s.s $f6,FORLOOPS_CR($fp)
+    lw      t0, FORLOOPS_ARG0($fp)
+    l.s     $f4,D_RE(t0)
+    l.s     $f6,FORLOOPS_CR($fp)
+    add.s   $f6,$f6,$f4 ## cr += D_RE 
+    s.s     $f6,FORLOOPS_CR($fp)
 
-    lw t2,FORLOOPS_X($fp)
-    lw t4,FORLOOPS_XRES($fp)
+    lw      t2,FORLOOPS_X($fp)
+    lw      t4,FORLOOPS_XRES($fp)
 
-    addi t2,t2,1  ## increment x  
-    sw t2,FORLOOPS_X($fp)
+    addi    t2,t2,1  ## increment x  
+    sw      t2,FORLOOPS_X($fp)
 
-    blt t2, t4, for_x         
+    blt     t2, t4, for_x         
 
 end_for_x:
-    li t2,0
-    sw t2,FORLOOPS_X($fp)           ## initializes x = 0 to loop again  
-    b for_y
+    li      t2,0
+    sw      t2,FORLOOPS_X($fp)           ## initializes x = 0 to loop again 
+    lw      t0, FORLOOPS_ARG0($fp)    ## t0 <- *params
+    l.s     $f4,UL_RE(t0)
+    s.s     $f4,FORLOOPS_CR($fp)      ## Reset cr to UL_RE
+    b       for_y
 
 end_for_y:             ## returns to mips32_plot
-    lw  gp,FORLOOPS_GP(sp)
-    lw  $fp,FORLOOPS_FP(sp)
-    lw  ra,FORLOOPS_RA(sp)
-    addu sp,sp,FORLOOPS_SFSIZE
-    jr  ra
+    lw      gp,FORLOOPS_GP(sp)
+    lw      $fp,FORLOOPS_FP(sp)
+    lw      ra,FORLOOPS_RA(sp)
+    addu    sp,sp,FORLOOPS_SFSIZE
+    jr      ra
 
-    .end for_loops
+    .end    for_loops
 
 ############################
 ## FUNCION CALCULO BRILLO ##
@@ -314,7 +501,7 @@ loop_brillo:
     add.s   $f16, $f6, $f10         ## f16 <- zr * zr + zi * zi 
     s.s     $f16, BRILLO_ABSZ($fp)  ## absz = zr * zr + zi * zi
     li.s    $f18, CUATRO
-    c.lt.s	$f16,$f18	              ## if absz < 4.0 --> code = 1; else --> code = 0
+    c.lt.s	$f16,$f18	            ## if absz < 4.0 --> code = 1; else --> code = 0
     bc1f    print_brillo            ## if code == 0 --> break;
     sub.s   $f16, $f6, $f10         ## f16 <- zf*zf - zi*zi
     lw      t0, BRILLO_ARG2($fp)    ## t0 <- *params
@@ -337,43 +524,13 @@ loop_brillo:
     sw      t0, BRILLO_C($fp)       ## save c in stack
     lw      t1, BRILLO_ARG2($fp)    ## t1 <- *params
     lw      t1, SHADES(t1)          ## t1 <- params->shades
+    sub     t1, t1, 1
     bge     t1, t0, loop_brillo     ## if (c > shades) break;
     
 print_brillo:
-    lw t4, BRILLO_C($fp)
-    jal itoa
-    li      a0, 1         ## itoa returns addr of buffer in a1 and number of bytes in a2
-    li      v0, SYS_write
-    syscall
-    ## falta cargar los parametros para pasarle a imprimir 
-    ## (file descriptor del archivo y el pixel a imprimir)
-    #jal imprimir
-
-    b end_calculo_brillo
-
-itoa:
-    # receives parameter in t3
-    la      t0, buffer    ## load buf
-    add     t0, t0, 30    ## seek the end
-    sb      zero, 1(t0)   ## null-terminated str
-    li      t5, 1         ## start bytes counter
-    li      t1, '0'
-    sb      t1, (t0)      ## init. with ascii 0
-    li      t2, 10        ## preload 10
-    beq     t3, 0, iend   ## end if arg is 0
-loop:
-    div     t3, t2        ## a /= 10
-    mflo    t3
-    mfhi    t4            ## get remainder
-    add     t4, t4, t1    ## convert to ASCII digit
-    sb      t4, (t0)      ## store it
-    sub     t0, t0, 1     ## dec. buf ptr
-    add     t5, t5, 1     ## bytes counter++
-    bne     t3, 0, loop   ## if not zero, loop
-iend:
-    move    a1, t0        ## return the addr of the string
-    move    a2, t5        ## return the number of bytes written
-    jr      ra    
+    lw      a0, BRILLO_ARG2($fp)
+    lw      a1, BRILLO_C($fp)
+    jal imprimir_numero
 
 end_calculo_brillo:
     move    sp, $fp                  ## move sp
@@ -385,39 +542,8 @@ end_calculo_brillo:
 
     .end    calculo_brillo
 
-.data
-.align 2
-buffer: .space 32
+.rdata          # segmento read-only data
 
-# imprimir
-.text
-.abicalls
-.align  2  
-.globl imprimir  
-.ent imprimir
-
-imprimir:
-
-    ## Stack frame creation for function
-    .frame  $fp,IMPRIMIR_SFSIZE,ra
-    .set    noreorder
-    .cpload t9
-    .set    reorder
-
-    subu sp,sp,IMPRIMIR_SFSIZE
-    sw  ra,IMPRIMIR_RA(sp)
-    sw  $fp,IMPRIMIR_FP(sp)
-
-    .cprestore IMPRIMIR_GP
-
-    move    $fp,sp
-
-end_imprimir:
-    move    sp, $fp                  ## move sp
-    lw      gp, IMPRIMIR_GP(sp)        ## load gp
-    lw      $fp, IMPRIMIR_FP(sp)       ## load fp
-    lw      ra, IMPRIMIR_RA(sp)        ## load ra
-    addu    sp, sp, IMPRIMIR_SFSIZE    ## Move the sp to callee position
-    jr      ra                       ## jump to return address    
-
-.end    imprimir
+    .align 2
+sep: .ascii "\n"
+header:     .asciiz "P2"
