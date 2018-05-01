@@ -412,22 +412,20 @@ for_y:
     lw      t3,FORLOOPS_Y($fp)
     lw      t1,FORLOOPS_YRES($fp)
 
-    blt     t1,t3,end_for_y
-
     addi    t3,t3,1       # increment y
     sw      t3,FORLOOPS_Y($fp)
+
+    blt     t1,t3,end_for_y
 
     lw      t0, FORLOOPS_ARG0($fp)
     l.s     $f4,D_IM(t0)
     l.s     $f6,FORLOOPS_CI($fp)
     sub.s   $f6,$f6,$f4    # ci -= D_IM  
     s.s     $f6,FORLOOPS_CI($fp)  
-
     
 for_x:    
     l.s     $f12, FORLOOPS_CR($fp)
     l.s     $f14, FORLOOPS_CI($fp)
-
 
     lw      a0,FORLOOPS_ARG0($fp)
 
@@ -525,7 +523,7 @@ loop_brillo:
     lw      t1, BRILLO_ARG2($fp)    ## t1 <- *params
     lw      t1, SHADES(t1)          ## t1 <- params->shades
     sub     t1, t1, 1
-    bge     t1, t0, loop_brillo     ## if (c > shades) break;
+    bgt     t1, t0, loop_brillo     ## if (c > shades) break;
     
 print_brillo:
     lw      a0, BRILLO_ARG2($fp)
@@ -545,5 +543,5 @@ end_calculo_brillo:
 .rdata          # segmento read-only data
 
     .align 2
-sep: .ascii "\n"
+sep: .ascii " "
 header:     .asciiz "P2"
