@@ -115,7 +115,7 @@ parse_cmdline(int argc, char * const argv[])
 	}
 
 	if (plot == NULL)
-		plot = &mips32_plot;
+		plot = &mips32_plot_c;
 
 	if (output == NULL)
 		output = stdout;
@@ -318,8 +318,17 @@ do_width(const char *name, const char *spec)
 static void
 do_method(const char *name, const char *spec)
 {
-	fprintf(stderr, "do_method: notyet\n");
-	exit(1);
+	if (strcmp(spec, "generic") == 0) {
+		plot = &mips32_plot_c;
+	} else {
+		if (strcmp(spec, "mips32") == 0) {
+			plot = &mips32_plot;
+		} else {
+			fprintf(stderr, "Invalid method name.\n");
+			exit(1);
+		}
+	}
+
 }
 
 static void
