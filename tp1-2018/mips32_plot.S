@@ -10,6 +10,8 @@
 #define DOS 2.0
 #define SIZE_HEADER 2
 #define SIZE_SEP 1
+#define STDOUT 2
+#define SIZE_MSG_ERR 11
 
 ###################################
 ## SECTION DEFINES struct params ##
@@ -80,6 +82,7 @@
 #define IMPRIMIR_NRO_SFSIZE 32
 
 # SRA
+#define IMPRIMIR_NRO_S0 28
 #define IMPRIMIR_NRO_RA 24
 #define IMPRIMIR_NRO_FP 20
 #define IMPRIMIR_NRO_GP 16
@@ -151,27 +154,6 @@
 ## END SECTION ##
 #################
 
-##############################
-## SECTION DEFINES imprimir ##
-##############################
-
-#define IMPRIMIR_SFSIZE 40
-
-#SRA
-#define IMPRIMIR_RA 32
-#define IMPRIMIR_FP 28
-#define IMPRIMIR_GP 24
-
-#define IMPRIMIR_FD 16
-
-#define IMPRIMIR_ARG0 36
-#define IMPRIMIR_ARG1 40
-#define IMPRIMIR_ARG2 44
-
-#################
-## END SECTION ##
-#################
-
     .text
     .abicalls
     .align  2
@@ -201,7 +183,24 @@ mips32_plot:
     li      a2, SIZE_HEADER
     li      v0, SYS_write
     syscall
-    
+
+    # Chequeo de errores (a3 != 0?)
+    bne     a3, zero, error_header    ## valido error en escritura 
+    beq     v0, SIZE_HEADER, no_error ## Verifico que se hayan imprimido la cantidad de bytes que pedi
+
+error_header:
+    li      a0, STDOUT
+    la      a1, msg_error
+    li      a2, SIZE_MSG_ERR
+    li      v0, SYS_write
+    syscall
+
+    # exit program
+    li      a0,1
+    li      v0, SYS_exit
+    syscall                      ## Exit the program with status = 1
+
+no_error:    
     lw      a0, PLOT_ARG0($fp)
     jal     imprimir_sep
 
@@ -277,6 +276,22 @@ imprimir_sep:
     li      a2,SIZE_SEP
     li      v0,SYS_write
     syscall
+    # Chequeo de errores (a3 != 0?)
+    bne     a3, zero, error_sep      ## valido error en escritura 
+    beq     v0, SIZE_SEP, end_imprimir_sep ## Verifico que se hayan imprimido la cantidad de bytes que pedi
+
+error_sep:
+    li      a0, STDOUT
+    la      a1, msg_error
+    li      a2, SIZE_MSG_ERR
+    li      v0, SYS_write
+    syscall
+
+    # exit program
+    li      a0,1
+    li      v0, SYS_exit
+    syscall                      ## Exit the program with status = 1
+
 
 end_imprimir_sep:
     lw      gp,SEP_GP(sp)
@@ -308,7 +323,9 @@ imprimir_numero:
     .cprestore IMPRIMIR_NRO_GP          
     
     move    $fp, sp                     ## $fp <- sp    
-    
+    ## SAVE SRA
+    sw      s0, IMPRIMIR_NRO_S0($fp)        ## Guardo el s0 en el SRA
+
     ## ARGS TO ABA
     sw      a0, IMPRIMIR_NRO_ARG0($fp)
     sw      a1, IMPRIMIR_NRO_ARG1($fp)
@@ -336,14 +353,32 @@ loop:
 endi:
     move    a1, t0                      ## addr of the string
     move    a2, t5                      ## number of bytes written
+    move    s0, t5                      ## load for later check
 
     lw      t0, IMPRIMIR_NRO_ARG0($fp)  ## t0 <- *params
     lw      t0, FPI(t0)                 ## t0 <- *FILE
     lh      a0, OFFSET_FD(t0)           ## a0 <- fd
-    li      v0,SYS_write
+    li      v0, SYS_write
+    syscall
+    # Chequeo de errores (a3 != 0?)
+    bne     a3, zero, error             ## valido error en escritura 
+    beq     v0, s0, end_imprimir_numero ## Verifico que se hayan imprimido la cantidad de bytes que pedi
+
+error:
+    li      a0,STDOUT
+    la      a1, msg_error
+    li      a2, SIZE_MSG_ERR
+    li      v0, SYS_write
     syscall
 
+    # exit program
+    li      a0,1
+    li      v0, SYS_exit
+    syscall                             ## Exit the program with status = 1
+
 end_imprimir_numero:
+    ## RESTORE SRA
+    lw      s0, IMPRIMIR_NRO_S0($fp)        ## Restore el s0
     lw      gp,IMPRIMIR_NRO_GP(sp)
     lw      $fp,IMPRIMIR_NRO_FP(sp)
     lw      ra,IMPRIMIR_NRO_RA(sp)
@@ -549,3 +584,4 @@ end_calculo_brillo:
     .align 2
 sep: .ascii "\n"
 header:     .asciiz "P2"
+msg_error: .asciiz  "i/o error.\n"
